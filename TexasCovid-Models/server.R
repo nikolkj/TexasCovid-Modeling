@@ -204,54 +204,58 @@ shinyServer(function(input, output) {
     # PLOTS: "comm.rates_*"
     # Rates should use numerator data as COLOR and OPACITY reference
     output$comm.rates_infected.line = renderPlotly({
-        dat_pop %>%
+        f1 = dat_pop %>%
             group_by(Date, pop_group) %>%
             mutate(pcnt_infected = DailyCount_cases/Population) %>% 
             filter(!is.na(pcnt_infected)) %>%
             select(Date, pop_group, pcnt_infected) %>%
             ungroup() %>%
+            arrange(pop_group) %>%
             plot_ly(data = ., 
                     x = ~Date,
                     y = ~pcnt_infected,
                     color = ~pop_group,
+                    legendgroup = ~pop_group,
                     mode = 'lines', 
                     line = list(width = 3),
-                    # opacity = .90,
                     type = 'scatter'
             ) %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
                 yaxis = list(title = "Pcnt Population Infected", titlefont = plotly_titlefont.axis, tickformat = ".2%")
-            )
-    })
-    
-    output$comm.rates_dailyinfected.line = renderPlotly({
-        dat_pop %>%
+            ) 
+        
+        f2 = dat_pop %>%
             group_by(Date, pop_group) %>%
             mutate(pcnt_infected = DailyDelta_cases/Population) %>% 
             filter(!is.na(pcnt_infected)) %>%
             select(Date, pop_group, pcnt_infected) %>%
             ungroup() %>%
+            arrange(pop_group) %>%
             plot_ly(data = ., 
                     x = ~Date,
                     y = ~pcnt_infected,
                     color = ~pop_group,
+                    legendgroup = ~pop_group,
                     mode = 'lines', 
                     line = list(width = 3),
-                    # opacity = .90,
-                    type = 'scatter'
+                    showlegend = FALSE,
+                    type = 'scatter', 
+                    showlegend = FALSE
             ) %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
                 yaxis = list(title = "Daily Infection Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
             )
+        
+        fig = subplot(f1, f2, nrows = 2, shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
+        fig
     })
     
-    
     output$comm.rates_tested.line = renderPlotly({
-        dat_pop %>%
+        f1 = dat_pop %>%
             group_by(Date, pop_group) %>%
             mutate(pcnt_tested = DailyCount_tests/Population) %>% 
             filter(!is.na(pcnt_tested)) %>%
@@ -261,9 +265,9 @@ shinyServer(function(input, output) {
                     x = ~Date,
                     y = ~pcnt_tested,
                     color = ~pop_group,
+                    legendgroup = ~pop_group,
                     mode = 'lines', 
                     line = list(width = 3),
-                    # opacity = .90,
                     type = 'scatter'
             ) %>%
             layout(
@@ -272,10 +276,7 @@ shinyServer(function(input, output) {
                 yaxis = list(title = "Pcnt Population Tested", titlefont = plotly_titlefont.axis, tickformat = ".2%")
             )
         
-    })
-    
-    output$comm.rates_dailytested.line = renderPlotly({
-        dat_pop %>%
+        f2 = dat_pop %>%
             group_by(Date, pop_group) %>%
             mutate(pcnt_tested = DailyDelta_tests/Population) %>% 
             filter(!is.na(pcnt_tested)) %>%
@@ -285,19 +286,25 @@ shinyServer(function(input, output) {
                     x = ~Date,
                     y = ~pcnt_tested,
                     color = ~pop_group,
+                    legendgroup = ~pop_group,
                     mode = 'lines', 
                     line = list(width = 3),
-                    # opacity = .90,
-                    type = 'scatter'
+                    type = 'scatter',
+                    showlegend = FALSE
             ) %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
                 yaxis = list(title = "Daily Testing Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
             )
+        
+        fig = subplot(f1, f2, nrows = 2, shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
+        fig
+        
     })
     
     output$comm.rates_mortality.line = renderPlotly({
+        f1 = 
         dat_pop %>%
             group_by(Date, pop_group) %>%
             mutate(pcnt_mortality = DailyCount_deaths/DailyCount_cases) %>% 
@@ -308,9 +315,9 @@ shinyServer(function(input, output) {
                     x = ~Date,
                     y = ~pcnt_mortality,
                     color = ~pop_group,
+                    legendgroup = ~pop_group,
                     mode = 'lines', 
                     line = list(width = 3),
-                    # opacity = .90,
                     type = 'scatter'
             ) %>%
             layout(
@@ -318,6 +325,32 @@ shinyServer(function(input, output) {
                 xaxis = plotly_axisformat.date,
                 yaxis = list(title = "Case Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
             )
+        
+        f2 = dat_pop %>%
+            group_by(Date, pop_group) %>%
+            mutate(pcnt_mortality = DailyDelta_deaths/DailyDelta_cases) %>% 
+            filter(!is.na(pcnt_mortality)) %>%
+            select(Date, pop_group, pcnt_mortality) %>%
+            ungroup() %>%
+            plot_ly(data = ., 
+                    x = ~Date,
+                    y = ~pcnt_mortality,
+                    color = ~pop_group,
+                    legendgroup = ~pop_group,
+                    mode = 'lines', 
+                    line = list(width = 3),
+                    type = 'scatter', 
+                    showlegend = FALSE
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Daily Case Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+            )
+        
+        fig = subplot(f1, f2, nrows = 2, shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
+        fig
+        
     })
     
     output$comm.rates_dailymortality.line = renderPlotly({
