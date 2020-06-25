@@ -19,20 +19,38 @@ require(dashboardthemes) # experimental, install_github("nik01010/dashboardtheme
 require(plotly, quietly = TRUE)
 
 # LOAD REQUIRED DATA ---
-dat_ts = readRDS(file = "../dat_ts.RDS") # Master data set
-pop = readRDS(file = "../texas-demographics_county-populations_segmented.RDS")
+source("get-data.R") # Located in "TexasCovid-Models/", gets county-level data from GitHub, applies basic preprocessing
+pop <<- readRDS(file = "../texas-demographics_county-populations_segmented.RDS")
+
+# Fetch main data
+dat <<- readr::read_csv(
+        file = "https://raw.githubusercontent.com/nikolkj/Texas-Covid/master/daily-county-data/Texas-County-Main.csv",
+        col_names = TRUE,
+        col_types = cols(
+            County = readr::col_factor(),
+            Date = readr::col_date(),
+            DailyCount_cases = readr::col_integer(),
+            DailyDelta_cases = readr::col_integer(),
+            DailyCount_tests = readr::col_integer(),
+            DailyDelta_tests = readr::col_integer(),
+            DailyCount_deaths = readr::col_integer(),
+            DailyDelta_deaths = readr::col_integer(),
+            LastUpdateDate = readr::col_date()
+        ),
+        na = ""
+    ) %>% select(-LastUpdateDate)
 
 # PREPARE DATA-OBJECTS -----
-# County-level Data
-dat <<- dat_ts %>% 
-    select(County, data) %>% 
-    unnest(data = ., cols = c(data))
+# # County-level Data
+# dat <<- dat_ts %>% 
+#     select(County, data) %>% 
+#     unnest(data = ., cols = c(data))
 
 # State-level Data
 dat_state <<- dat %>% 
     select(-County) %>% 
     group_by(Date) %>% 
-    summarise_at(vars(-group_cols()), sum)
+    summarise_at(vars(-group_cols()), sum, na.rm = TRUE)
 
 # Community-level Data
 dat_pop <<- dat %>% 
