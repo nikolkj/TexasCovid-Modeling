@@ -189,55 +189,79 @@ ui_body = dashboardBody(
                                            tabBox(title = tagList(shiny::icon(name = "stethoscope", class = "fa-1x",lib = "font-awesome"), 
                                                                   HTML("<b>Tests</b>")), selected = "Daily", width = 12,
                                                   tabPanel("Total",
-                                                           "... Coming Soon ..."
-                                                           # plotly::plotlyOutput(outputId = "plot.state.total_tests.line")
+                                                           plotly::plotlyOutput(outputId = "plot.county.total_tests.line")
                                                            ),
                                                   tabPanel("Daily",
-                                                           plotly::plotlyOutput(outputId = "plot.county.daily_tests.bar")
+                                                           plotly::plotlyOutput(outputId = "plot.county.daily_tests.bar"),
+                                                           htmlOutput("text.county.daily_tests_comp")
                                                            # HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))),
                                                   ),
                                                   tabPanel("Forecasts", 
                                                            "... Coming Soon ...")
                                                   )
                                            ),
-                                       fluidRow(
-                                           tabBox(title = tagList(shiny::icon(name = "ambulance", class = "fa-1x",lib = "font-awesome"), 
-                                                          HTML("<b>Cases</b>")), selected = "Daily", width = 12,
-                                                  tabPanel("Total",
-                                                           "... Coming Soon ..."
-                                                           # plotly::plotlyOutput(outputId = "plot.state.total_tests.line")
-                                                  ),
-                                                  tabPanel("Daily",
-                                                           plotly::plotlyOutput(outputId = "plot.county.daily_cases.bar")
-                                                           # HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))),
-                                                  ),
-                                                  tabPanel("Forecasts", 
-                                                           "... Coming Soon ...")
-                                           )
-                                       ),
-                                       fluidRow(
-                                           tabBox(title = tagList(shiny::icon(name = "skull", class = "fa-1x",lib = "font-awesome"), 
-                                                                  HTML("<b>Deaths</b>")), selected = "Daily", width = 12,
-                                                  tabPanel("Total",
-                                                           # plotly::plotlyOutput(outputId = "plot.state.total_deaths.line")
-                                                           ),
-                                                  tabPanel("Daily",
-                                                           plotly::plotlyOutput(outputId = "plot.county.daily_deaths.bar")
-                                                           # HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))
-                                                           ),
-                                                  tabPanel("Forecasts", 
-                                                           "... Coming Soon ...")
-                                                  
-                                                )
+                                       fluidRow(tabBox(
+                                           title = tagList(
+                                               shiny::icon(name = "ambulance", class = "fa-1x", lib = "font-awesome"),
+                                               HTML("<b>Cases</b>")
                                            ),
-                                       fluidRow(
-                                           tabBox(
+                                           selected = "Daily",
+                                           width = 12,
+                                           tabPanel(
+                                               "Total",
+                                               plotly::plotlyOutput(outputId = "plot.county.total_cases.line")
+                                           ),
+                                           tabPanel(
+                                               "Daily",
+                                               plotly::plotlyOutput(outputId = "plot.county.daily_cases.bar"),
+                                               htmlOutput("text.county.daily_cases_comp")
+                                               # HTML(paste0("<br>Appx. <b>", textOutput("text.county.daily_cases_comp"), "%</b> of the days were better.</br>"))
+                                               # uiOutput(outputId = "text.county.daily_cases_comp_html")   
+                                        ),
+                                           tabPanel("Forecasts",
+                                                    "... Coming Soon ...")
+                                       )),
+                                       fluidRow(tabBox(
+                                           title = tagList(
+                                               shiny::icon(name = "skull", class = "fa-1x", lib = "font-awesome"),
+                                               HTML("<b>Deaths</b>")
+                                           ),
+                                           selected = "Daily",
+                                           width = 12,
+                                           tabPanel(
+                                               "Total",
+                                               plotly::plotlyOutput(outputId = "plot.county.total_deaths.line")
+                                           ),
+                                           tabPanel(
+                                               "Daily",
+                                               plotly::plotlyOutput(outputId = "plot.county.daily_deaths.bar"),
+                                               htmlOutput("text.county.daily_deaths_comp")
+                                               # HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))
+                                           ),
+                                           tabPanel("Forecasts",
+                                                    "... Coming Soon ...")
+                                           
+                                       )),
+                                       fluidRow(tabBox(
                                            title = tagList(
                                                shiny::icon(name = "compass", class = "fa-1x", lib = "font-awesome"),
                                                HTML("<b>Rates</b>")
                                            ),
-                                           tabPanel("Infection Rate",
-                                                    "asdf")
+                                           width = 12,
+                                           tabPanel(
+                                               "Infection Rate",
+                                               plotly::plotlyOutput(outputId = "county.rates_infected.line")
+                                           ),
+                                           tabPanel(
+                                               "Detection Rate",
+                                               plotly::plotlyOutput(outputId = "plot.county.rate_detection.line")
+                                           ),
+                                           tabPanel(
+                                               "Mortality Rate",
+                                               plotly::plotlyOutput(outputId = "plot.county.rate_mortality.line")
+                                           ),
+                                           tabPanel("Notes",
+                                                    "... Coming Soon ...")
                                        ))
                                        ),
                          shiny::column(width = 6,
