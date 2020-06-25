@@ -216,6 +216,21 @@ ui_body = dashboardBody(
                                            )
                                        ),
                                        fluidRow(
+                                           tabBox(title = tagList(shiny::icon(name = "skull", class = "fa-1x",lib = "font-awesome"), 
+                                                                  HTML("<b>Deaths</b>")), selected = "Daily", width = 12,
+                                                  tabPanel("Total",
+                                                           # plotly::plotlyOutput(outputId = "plot.state.total_deaths.line")
+                                                           ),
+                                                  tabPanel("Daily",
+                                                           plotly::plotlyOutput(outputId = "plot.county.daily_deaths.bar")
+                                                           # HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))
+                                                           ),
+                                                  tabPanel("Forecasts", 
+                                                           "... Coming Soon ...")
+                                                  
+                                                )
+                                           ),
+                                       fluidRow(
                                            tabBox(
                                            title = tagList(
                                                shiny::icon(name = "compass", class = "fa-1x", lib = "font-awesome"),

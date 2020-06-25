@@ -447,4 +447,31 @@ shinyServer(function(input, output) {
         p
     })
     
+    output$plot.county.daily_deaths.bar = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            filter(!is.na(DailyDelta_deaths)) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ DailyDelta_deaths,
+                marker = list(color = plotly_color.deaths),
+                opacity = .90,
+                type = "bar"
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Daily Deaths", titlefont = plotly_titlefont.axis)
+            )
+        
+        p
+    })
+    
+    # PLOTS: "county.total_*" ----
+    
+    
+    # PLOTS: "county.forecasts_*" ----
+    
 })
