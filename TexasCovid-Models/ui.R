@@ -38,7 +38,7 @@ dat <<- readr::read_csv(
             LastUpdateDate = readr::col_date()
         ),
         na = ""
-    ) %>% select(-LastUpdateDate)
+    ) %>% select(-LastUpdateDate) 
 
 # PREPARE DATA-OBJECTS -----
 # # County-level Data
@@ -63,6 +63,13 @@ dat_pop <<- dat %>%
     select(-County) %>% 
     group_by(pop_group, Date) %>% 
     summarise_at(vars(-group_cols()), sum)
+
+# County-level Data
+dat_community <<- dat %>% 
+    group_by(County) %>%
+    arrange(Date) %>% 
+    nest() %>%
+    ungroup() 
         
 
 # CALCULATE DYNAMIC METRICS ----
@@ -173,17 +180,69 @@ ui_body = dashboardBody(
                     )
                 )),
         tabItem(tabName = "tab_dash_county", 
+                fluidPage(
                 fluidRow(
                     shiny::column(width = 4, uiOutput("select.county_name"), offset = 0)
                 ),
-                fluidRow(
-                    tabBox(title = tagList(shiny::icon(name = "compass", class = "fa-1x",lib = "font-awesome"), 
-                                           HTML("<b>Rates</b>")),
-                           tabPanel("Infection Rate",
-                                    "asdf")
-                    )
-                )
-                ),
+                fluidRow(shiny::column(width = 6,
+                                       fluidRow(
+                                           tabBox(title = tagList(shiny::icon(name = "stethoscope", class = "fa-1x",lib = "font-awesome"), 
+                                                                  HTML("<b>Tests</b>")), selected = "Daily", width = 12,
+                                                  tabPanel("Total",
+                                                           "... Coming Soon ..."
+                                                           # plotly::plotlyOutput(outputId = "plot.state.total_tests.line")
+                                                           ),
+                                                  tabPanel("Daily",
+                                                           plotly::plotlyOutput(outputId = "plot.county.daily_tests.bar")
+                                                           # HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))),
+                                                  ),
+                                                  tabPanel("Forecasts", 
+                                                           "... Coming Soon ...")
+                                                  )
+                                           ),
+                                       fluidRow(
+                                           tabBox(title = tagList(shiny::icon(name = "ambulance", class = "fa-1x",lib = "font-awesome"), 
+                                                          HTML("<b>Cases</b>")), selected = "Daily", width = 12,
+                                                  tabPanel("Total",
+                                                           "... Coming Soon ..."
+                                                           # plotly::plotlyOutput(outputId = "plot.state.total_tests.line")
+                                                  ),
+                                                  tabPanel("Daily",
+                                                           plotly::plotlyOutput(outputId = "plot.county.daily_cases.bar")
+                                                           # HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))),
+                                                  ),
+                                                  tabPanel("Forecasts", 
+                                                           "... Coming Soon ...")
+                                           )
+                                       ),
+                                       fluidRow(
+                                           tabBox(
+                                           title = tagList(
+                                               shiny::icon(name = "compass", class = "fa-1x", lib = "font-awesome"),
+                                               HTML("<b>Rates</b>")
+                                           ),
+                                           tabPanel("Infection Rate",
+                                                    "asdf")
+                                       ))
+                                       ),
+                         shiny::column(width = 6,
+                                       fluidRow(
+                                           tabBox(
+                                               title = tagList(
+                                                   shiny::icon(name = "info-circle", class = "fa-1x", lib = "font-awesome"),
+                                                   HTML("<b>Segmentation Details</b>")
+                                               ), width = 12,
+                                               tabPanel(
+                                                   "Map",
+                                                   shiny::plotOutput(
+                                                       outputId = "county.info_segementation.map",
+                                                       width = "700px",
+                                                       height = "600px"
+                                                   )
+                                               )
+                                           )
+                                       )))
+                )), 
         tabItem(tabName = "tab_other_about", "about"),
         tabItem(tabName = "tab_other_support", "support")
     )
