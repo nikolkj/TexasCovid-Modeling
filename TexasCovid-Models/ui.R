@@ -19,7 +19,7 @@ require(dashboardthemes) # experimental, install_github("nik01010/dashboardtheme
 require(plotly, quietly = TRUE)
 
 # LOAD REQUIRED DATA ---
-source("get-data.R") # Located in "TexasCovid-Models/", gets county-level data from GitHub, applies basic preprocessing
+# Fetch population data
 pop <<- readRDS(file = "../texas-demographics_county-populations_segmented.RDS")
 
 # Fetch main data
@@ -173,7 +173,10 @@ ui_body = dashboardBody(
                     )
                 )),
         tabItem(tabName = "tab_dash_county", 
-                shiny::fluidRow(
+                fluidRow(
+                    shiny::column(width = 4, uiOutput("select.county_name"), offset = 0)
+                ),
+                fluidRow(
                     tabBox(title = tagList(shiny::icon(name = "compass", class = "fa-1x",lib = "font-awesome"), 
                                            HTML("<b>Rates</b>")),
                            tabPanel("Infection Rate",
