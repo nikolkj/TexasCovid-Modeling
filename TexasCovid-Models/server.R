@@ -35,7 +35,8 @@ shinyServer(function(input, output) {
     
     # PLOTS: "state.daily_*" ----
     output$plot.state.daily_cases.bar = renderPlotly({
-        p = dat_state %>%
+        p = dat_state %>% 
+            filter(!is.na(DailyDelta_cases)) %>%
             plot_ly(
                 data = .,
                 x = ~ Date,
@@ -55,6 +56,7 @@ shinyServer(function(input, output) {
     
     output$plot.state.daily_tests.bar = renderPlotly({
         p = dat_state %>%
+            filter(!is.na(DailyDelta_tests)) %>%
             plot_ly(
                 data = .,
                 x = ~ Date,
@@ -102,6 +104,7 @@ shinyServer(function(input, output) {
                 data = .,
                 x = ~ Date,
                 y = ~ DailyCount_cases,
+                connectgaps = TRUE,
                 line = list(color = plotly_color.cases, width = 8),
                 opacity = .95,
                 type = 'scatter', mode = 'lines'
@@ -117,10 +120,13 @@ shinyServer(function(input, output) {
     
     output$plot.state.total_tests.line = renderPlotly({
         p = dat_state %>%
+            filter(!is.na(DailyCount_tests)) %>%
+            filter(DailyCount_tests != 0) %>%
             plot_ly(
                 data = .,
                 x = ~ Date,
                 y = ~ DailyCount_tests,
+                connectgaps = TRUE,
                 line = list(color = plotly_color.tests, width = 8),
                 opacity = .90,
                 type = 'scatter', mode = 'lines'
@@ -140,6 +146,7 @@ shinyServer(function(input, output) {
                 data = .,
                 x = ~ Date,
                 y = ~ DailyCount_deaths,
+                connectgaps = TRUE,
                 line = list(color = plotly_color.deaths, width = 8),
                 opacity = .90,
                 type = 'scatter', mode = 'lines'
@@ -163,6 +170,7 @@ shinyServer(function(input, output) {
                 data = .,
                 x = ~ Date,
                 y = ~ daily_detection,
+                connectgaps = TRUE,
                 line = list(color = plotly_color.cases, width = 5),
                 opacity = .95,
                 type = 'scatter', mode = 'lines'
@@ -186,6 +194,7 @@ shinyServer(function(input, output) {
                 data = .,
                 x = ~ Date,
                 y = ~ daily_mortality,
+                connectgaps = TRUE,
                 line = list(color = plotly_color.deaths, width = 5),
                 opacity = .90,
                 type = 'scatter', mode = 'lines'
@@ -214,6 +223,7 @@ shinyServer(function(input, output) {
             plot_ly(data = ., 
                     x = ~Date,
                     y = ~pcnt_infected,
+                    connectgaps = TRUE,
                     color = ~pop_group,
                     legendgroup = ~pop_group,
                     mode = 'lines', 
@@ -264,6 +274,7 @@ shinyServer(function(input, output) {
             plot_ly(data = ., 
                     x = ~Date,
                     y = ~pcnt_tested,
+                    connectgaps = TRUE,
                     color = ~pop_group,
                     legendgroup = ~pop_group,
                     mode = 'lines', 
@@ -314,6 +325,7 @@ shinyServer(function(input, output) {
             plot_ly(data = ., 
                     x = ~Date,
                     y = ~pcnt_mortality,
+                    connectgaps = TRUE,
                     color = ~pop_group,
                     legendgroup = ~pop_group,
                     mode = 'lines', 
@@ -363,6 +375,7 @@ shinyServer(function(input, output) {
             plot_ly(data = ., 
                     x = ~Date,
                     y = ~pcnt_mortality,
+                    connectgaps = TRUE,
                     color = ~pop_group,
                     mode = 'lines', 
                     line = list(width = 3),
