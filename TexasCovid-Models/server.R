@@ -32,11 +32,17 @@ plotly_color.deaths = "#ff4837"
 
 # Define Server-side Operations ----
 shinyServer(function(input, output) {
+    # UI Dynamic Objects
+    output$select.county_name = renderUI(
+        selectInput(inputId = "input_county", label = "Select County:", 
+                    choices = unique(as.character(dat$County)), 
+                    multiple = FALSE, selected = "Harris")
+    )
+    
     
     # PLOTS: "state.daily_*" ----
     output$plot.state.daily_cases.bar = renderPlotly({
         p = dat_state %>% 
-            filter(!is.na(DailyDelta_cases)) %>%
             plot_ly(
                 data = .,
                 x = ~ Date,
@@ -392,5 +398,53 @@ shinyServer(function(input, output) {
     # PLOTS: "comm.info_*" ----
     output$comm.info_segementation.hist = renderPlot({plot_TexasCommunities.hist})
     output$comm.info_segementation.map = renderPlot({plot_TexasCommunities.map})
+    
+    # PLOTS: "county.info_*" ----
+    output$county.info_segementation.map = renderPlot({plot_TexasCommunities.map})
+    
+    # PLOTS: "county.daily_*" ----
+    output$plot.county.daily_cases.bar = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            filter(!is.na(DailyDelta_cases)) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ DailyDelta_cases,
+                marker = list(color = plotly_color.cases),
+                opacity = .95,
+                type = "bar"
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Daily Cases", titlefont = plotly_titlefont.axis)
+            )
+        
+        p
+    })
+    
+    output$plot.county.daily_tests.bar = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            filter(!is.na(DailyDelta_tests)) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ DailyDelta_tests,
+                marker = list(color = plotly_color.tests),
+                opacity = .90,
+                type = "bar"
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Daily Tests", titlefont = plotly_titlefont.axis)
+            )
+        
+        p
+    })
     
 })
