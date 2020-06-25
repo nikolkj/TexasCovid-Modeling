@@ -216,7 +216,7 @@ shinyServer(function(input, output) {
         
     })
     
-    # PLOTS: "comm.rates_*"
+    # PLOTS: "comm.rates_*" ----
     # Rates should use numerator data as COLOR and OPACITY reference
     output$comm.rates_infected.line = renderPlotly({
         f1 = dat_pop %>%
@@ -469,9 +469,201 @@ shinyServer(function(input, output) {
         p
     })
     
+    # TEXT: "county.daily_*" ----
+    output$text.county.daily_cases_comp = renderText({
+            temp = dat_community %>%
+                filter(County == input$input_county) %>%
+                unnest(cols = c(data))
+
+
+            comp = (sum(temp$DailyDelta_cases < temp$DailyDelta_cases[nrow(temp)], na.rm = TRUE) / nrow(temp) * 100) %>%
+            round(x = ., digits = 0)
+
+            paste0("<br>Appx. <b>", as.character(comp), "%</b> of the days were better.</br>")
+    })
+    
+    output$text.county.daily_tests_comp = renderText({
+        temp = dat_community %>%
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            filter(!is.na(DailyDelta_tests))
+        
+        comp = (sum(temp$DailyDelta_tests > temp$DailyDelta_tests[nrow(temp)], na.rm = TRUE) / nrow(temp) * 100) %>%
+            round(x = ., digits = 0)
+        
+        paste0("<br>Appx. <b>", as.character(comp), "%</b> of the days were better.</br>")
+    })
+    
+    output$text.county.daily_deaths_comp = renderText({
+        temp = dat_community %>%
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data))
+        
+        
+        comp = (sum(temp$DailyDelta_deaths < temp$DailyDelta_deaths[nrow(temp)], na.rm = TRUE) / nrow(temp) * 100) %>%
+            round(x = ., digits = 0)
+        
+        paste0("<br>Appx. <b>", as.character(comp), "%</b> of the days were better.</br>")
+    })
+    
     # PLOTS: "county.total_*" ----
+    output$plot.county.total_cases.line = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            filter(!is.na(DailyCount_cases)) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ DailyCount_cases,
+                connectgaps = TRUE,
+                line = list(color = plotly_color.cases, width = 8),
+                opacity = .95,
+                type = 'scatter', mode = 'lines'
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Total Cases", titlefont = plotly_titlefont.axis, type = "log")
+            )
+        
+        p
+    })
+    
+    output$plot.county.total_tests.line = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            filter(!is.na(DailyCount_tests)) %>%
+            filter(DailyCount_tests != 0) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ DailyCount_tests,
+                connectgaps = TRUE,
+                line = list(color = plotly_color.tests, width = 8),
+                opacity = .90,
+                type = 'scatter', mode = 'lines'
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Total Tests", titlefont = plotly_titlefont.axis, type = "log")
+            )
+        
+        p
+    })
+    
+    output$plot.county.total_deaths.line = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            filter(!is.na(DailyCount_deaths)) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ DailyCount_deaths,
+                connectgaps = TRUE,
+                line = list(color = plotly_color.deaths, width = 8),
+                opacity = .90,
+                type = 'scatter', mode = 'lines'
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Total Deaths", titlefont = plotly_titlefont.axis, type = "log")
+            )
+        
+        p
+    })
     
     
     # PLOTS: "county.forecasts_*" ----
+    
+    # PLOTS: "county.rate_*" ----
+    # Rates should use numerator data as COLOR and OPACITY reference
+    output$plot.county.rate_detection.line = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            mutate(daily_detection = round((DailyDelta_cases/DailyDelta_tests), 2)) %>%
+            filter(!is.na(daily_detection)) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ daily_detection,
+                connectgaps = TRUE,
+                line = list(color = plotly_color.cases, width = 5),
+                opacity = .95,
+                type = 'scatter', mode = 'lines'
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Detection Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+            )
+        
+        p
+        
+        
+    })
+    
+    output$plot.county.rate_mortality.line = renderPlotly({
+        p = dat_community %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            mutate(daily_mortality = (DailyDelta_deaths/DailyDelta_cases)) %>%
+            filter(!is.na(daily_mortality)) %>%
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ daily_mortality,
+                connectgaps = TRUE,
+                line = list(color = plotly_color.deaths, width = 5),
+                opacity = .90,
+                type = 'scatter', mode = 'lines'
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+            )
+        
+        p
+        
+        
+    })
+    
+    output$county.rates_infected.line = renderPlotly({
+        dat_community %>% 
+            filter(County == "Harris") %>%
+            unnest(cols = c(data)) %>%
+            left_join(x = .,
+                      y = (pop %>% 
+                               select(County, jan1_2019_pop_est) %>%
+                               rename(Population = jan1_2019_pop_est)
+                      ), 
+                      by = "County") %>% 
+            ungroup() %>%
+            group_by(Date) %>%
+            mutate(pcnt_infected = DailyCount_cases/Population) %>%
+            filter(!is.na(pcnt_infected)) %>%
+            select(Date, pcnt_infected) %>%
+            ungroup() %>%
+            plot_ly(data = ., 
+                    x = ~Date,
+                    y = ~pcnt_infected,
+                    connectgaps = TRUE,
+                    line = list(color = plotly_color.cases, width = 3),
+                    opacity = .95,
+                    mode = 'lines', 
+                    type = 'scatter'
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date,
+                yaxis = list(title = "Pcnt Population Infected", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+            )
+    })
     
 })
