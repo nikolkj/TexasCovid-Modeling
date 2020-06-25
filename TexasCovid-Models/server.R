@@ -404,7 +404,7 @@ shinyServer(function(input, output) {
     
     # PLOTS: "county.daily_*" ----
     output$plot.county.daily_cases.bar = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyDelta_cases)) %>%
@@ -426,7 +426,7 @@ shinyServer(function(input, output) {
     })
     
     output$plot.county.daily_tests.bar = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyDelta_tests)) %>%
@@ -448,7 +448,7 @@ shinyServer(function(input, output) {
     })
     
     output$plot.county.daily_deaths.bar = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyDelta_deaths)) %>%
@@ -471,7 +471,7 @@ shinyServer(function(input, output) {
     
     # TEXT: "county.daily_*" ----
     output$text.county.daily_cases_comp = renderText({
-            temp = dat_community %>%
+            temp = dat_county %>%
                 filter(County == input$input_county) %>%
                 unnest(cols = c(data))
 
@@ -483,7 +483,7 @@ shinyServer(function(input, output) {
     })
     
     output$text.county.daily_tests_comp = renderText({
-        temp = dat_community %>%
+        temp = dat_county %>%
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyDelta_tests))
@@ -495,7 +495,7 @@ shinyServer(function(input, output) {
     })
     
     output$text.county.daily_deaths_comp = renderText({
-        temp = dat_community %>%
+        temp = dat_county %>%
             filter(County == input$input_county) %>%
             unnest(cols = c(data))
         
@@ -508,7 +508,7 @@ shinyServer(function(input, output) {
     
     # PLOTS: "county.total_*" ----
     output$plot.county.total_cases.line = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyCount_cases)) %>%
@@ -531,7 +531,7 @@ shinyServer(function(input, output) {
     })
     
     output$plot.county.total_tests.line = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyCount_tests)) %>%
@@ -555,7 +555,7 @@ shinyServer(function(input, output) {
     })
     
     output$plot.county.total_deaths.line = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyCount_deaths)) %>%
@@ -583,7 +583,7 @@ shinyServer(function(input, output) {
     # PLOTS: "county.rate_*" ----
     # Rates should use numerator data as COLOR and OPACITY reference
     output$plot.county.rate_detection.line = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             mutate(daily_detection = round((DailyDelta_cases/DailyDelta_tests), 2)) %>%
@@ -609,7 +609,7 @@ shinyServer(function(input, output) {
     })
     
     output$plot.county.rate_mortality.line = renderPlotly({
-        p = dat_community %>% 
+        p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             mutate(daily_mortality = (DailyDelta_deaths/DailyDelta_cases)) %>%
@@ -635,7 +635,7 @@ shinyServer(function(input, output) {
     })
     
     output$county.rates_infected.line = renderPlotly({
-        dat_community %>% 
+        dat_county %>% 
             filter(County == "Harris") %>%
             unnest(cols = c(data)) %>%
             left_join(x = .,

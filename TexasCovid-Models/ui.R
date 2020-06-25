@@ -65,12 +65,12 @@ dat_pop <<- dat %>%
     summarise_at(vars(-group_cols()), sum)
 
 # County-level Data
-dat_community <<- dat %>% 
+dat_county <<- dat %>% 
     group_by(County) %>%
     arrange(Date) %>% 
     nest() %>%
     ungroup() 
-        
+
 
 # CALCULATE DYNAMIC METRICS ----
 # ... Data loaded in "server.r" 
