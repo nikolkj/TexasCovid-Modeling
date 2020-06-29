@@ -108,15 +108,15 @@ state.comps.new_deaths = (sum(dat_state$DailyDelta_deaths < dat_state$DailyDelta
 # Define sidebar contents
 ui_sidebar = dashboardSidebar(
     sidebarMenu(
-        menuItem(text = "State Data",
-                 tabName = "tab_dash_state", 
-                 icon = shiny::icon(name = "th", class = "fa-1x",lib = "font-awesome")),
-        menuItem(text = "Community Data",
-                 tabName = "tab_dash_community", 
-                 icon = shiny::icon(name = "th-large", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "County Data",
                  tabName = "tab_dash_county", 
                  icon = shiny::icon(name = "square", class = "fa-1x",lib = "font-awesome")),
+        menuItem(text = "Community Data",
+                 tabName = "tab_dash_community", 
+                 icon = shiny::icon(name = "th-large", class = "fa-1x",lib = "font-awesome")),
+        menuItem(text = "State Data",
+                 tabName = "tab_dash_state", 
+                 icon = shiny::icon(name = "th", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "About", 
                  tabName = "tab_other_about",
                  icon = shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome")),
@@ -138,9 +138,7 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "plot.state.total_tests.line")),
                            tabPanel("Daily",
                                     plotly::plotlyOutput(outputId = "plot.state.daily_tests.bar"),
-                                    HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))),
-                           tabPanel("Forecasts", 
-                                    "... Coming Soon ...")
+                                    HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>")))
                            
                     ),
                     
@@ -151,9 +149,7 @@ ui_body = dashboardBody(
                            tabPanel("Daily",
                                     plotly::plotlyOutput(outputId = "plot.state.daily_cases.bar"),
                                     HTML(paste0("<br>Appx. <b>", state.comps.new_cases, "%</b> of the days were better.</br>"))
-                           ),
-                           tabPanel("Forecasts", 
-                                    "... Coming Soon ...")
+                           )
                            
                     )
                     
@@ -166,9 +162,7 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "plot.state.total_deaths.line")),
                            tabPanel("Daily",
                                     plotly::plotlyOutput(outputId = "plot.state.daily_deaths.bar"),
-                                    HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))),
-                           tabPanel("Forecasts", 
-                                    "... Coming Soon ...")
+                                    HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>")))
                            
                     ),
                     tabBox(title = tagList(shiny::icon(name = "compass", class = "fa-1x",lib = "font-awesome"), 
