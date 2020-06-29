@@ -20,7 +20,6 @@ require(shiny)
 require(shinydashboard)
 require(dashboardthemes) # experimental, install_github("nik01010/dashboardthemes")
 require(plotly, quietly = TRUE)
-#rdrop2
 
 # LOAD REQUIRED DATA ---
 # Fetch population data
@@ -110,15 +109,20 @@ state.comps.new_deaths = (sum(dat_state$DailyDelta_deaths < dat_state$DailyDelta
 ui_sidebar = dashboardSidebar(
     sidebarMenu(
         menuItem(text = "State Data",
-                 tabName = "tab_dash_state"),
+                 tabName = "tab_dash_state", 
+                 icon = shiny::icon(name = "th", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "Community Data",
-                 tabName = "tab_dash_community"),
+                 tabName = "tab_dash_community", 
+                 icon = shiny::icon(name = "th-large", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "County Data",
-                 tabName = "tab_dash_county"),
+                 tabName = "tab_dash_county", 
+                 icon = shiny::icon(name = "square", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "About", 
-                 tabName = "tab_other_about"),
+                 tabName = "tab_other_about",
+                 icon = shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "Supporters", 
-                 tabName = "tab_other_support")
+                 tabName = "tab_other_support",
+                 icon = shiny::icon(name = "thumbs-up", class = "fa-1x",lib = "font-awesome"))
     )
 )
 
@@ -129,7 +133,7 @@ ui_body = dashboardBody(
         tabItem(tabName = "tab_dash_state", 
                 fluidRow(
                     tabBox(title = tagList(shiny::icon(name = "stethoscope", class = "fa-1x",lib = "font-awesome"), 
-                                           HTML("<b>Tests</b>")), selected = "Daily",
+                                           HTML("<b>Tests</b>")), selected = "Daily", 
                            tabPanel("Total",
                                     plotly::plotlyOutput(outputId = "plot.state.total_tests.line")),
                            tabPanel("Daily",
