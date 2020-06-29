@@ -591,7 +591,7 @@ shinyServer(function(input, output) {
             select(forecast) %>% 
             .$forecast %>% 
             bind_cols() # Is this really necessary, there should be a better way to access the tibble
-        
+            
         
         shiny::validate(shiny::need(expr = !is.na(temp), message = "Insufficient data to generate a forecast."))
         
@@ -654,10 +654,7 @@ shinyServer(function(input, output) {
             )  %>% 
             layout(
                 p = .,
-                xaxis = list(title = "7-Day Forecast",
-                             family = "Courier New, monospace",
-                             size = 18,
-                             color = "#7f7f7f"),
+                xaxis = plotly_axisformat.date,
                 yaxis = list(title = "Total Cases Forecast", titlefont = plotly_titlefont.axis)
             )
             
@@ -733,10 +730,7 @@ shinyServer(function(input, output) {
             )  %>% 
             layout(
                 p = .,
-                xaxis = list(title = "7-Day Forecast",
-                             family = "Courier New, monospace",
-                             size = 18,
-                             color = "#7f7f7f"),
+                xaxis = plotly_axisformat.date,
                 yaxis = list(title = "Total Deaths Forecast", titlefont = plotly_titlefont.axis)
             )
         
@@ -812,10 +806,7 @@ shinyServer(function(input, output) {
             )  %>% 
             layout(
                 p = .,
-                xaxis = list(title = "7-Day Forecast",
-                             family = "Courier New, monospace",
-                             size = 18,
-                             color = "#7f7f7f"),
+                xaxis = plotly_axisformat.date,
                 yaxis = list(title = "Total Tests Forecast", titlefont = plotly_titlefont.axis)
             )
         
