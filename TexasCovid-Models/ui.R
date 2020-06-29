@@ -166,10 +166,10 @@ ui_body = dashboardBody(
                            
                     ),
                     tabBox(title = tagList(shiny::icon(name = "compass", class = "fa-1x",lib = "font-awesome"), 
-                                           HTML("<b>Rates</b>")), selected = "Detection Rate",
-                           tabPanel("Detection Rate",
+                                           HTML("<b>Rates</b>")), selected = "Detection",
+                           tabPanel("Detection",
                                     plotly::plotlyOutput(outputId = "plot.state.rate_detection.line")),
-                           tabPanel("Mortality Rate",
+                           tabPanel("Mortality",
                                     plotly::plotlyOutput(outputId = "plot.state.rate_mortality.line")),
                            tabPanel("Notes", 
                                     "... Coming Soon ...")
@@ -182,11 +182,11 @@ ui_body = dashboardBody(
                 fluidRow(
                     tabBox(title = tagList(shiny::icon(name = "compass", class = "fa-1x",lib = "font-awesome"), 
                                            HTML("<b>Rates</b>")),
-                           tabPanel("Infection Rate",
+                           tabPanel("Infection",
                                     plotly::plotlyOutput(outputId = "comm.rates_infected.line", height = "750px")),
-                           tabPanel("Testing Rate",
+                           tabPanel("Testing",
                                     plotly::plotlyOutput(outputId = "comm.rates_tested.line", height = "750px")),
-                           tabPanel("Mortality Rate", 
+                           tabPanel("Mortality", 
                                     plotly::plotlyOutput(outputId = "comm.rates_mortality.line", height = "750px"))
                     ),
                     tabBox(title = tagList(shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome"), 
@@ -269,10 +269,10 @@ ui_body = dashboardBody(
                                            tabBox(
                                                title = tagList(
                                                    shiny::icon(name = "info-circle", class = "fa-1x", lib = "font-awesome"),
-                                                   HTML("<b>Segmentation Details</b>")
+                                                   HTML("<b>Reference</b>")
                                                ), width = 12,
                                                tabPanel(
-                                                   "Map",
+                                                   "County-Types",
                                                    plotlyOutput(
                                                        outputId = "county.info_segementation.map"
                                                    )
@@ -286,15 +286,15 @@ ui_body = dashboardBody(
                                            ),
                                            width = 12,
                                            tabPanel(
-                                               "Infection Rate",
+                                               "Infection",
                                                plotly::plotlyOutput(outputId = "county.rates_infected.line")
                                            ),
                                            tabPanel(
-                                               "Detection Rate",
+                                               "Detection",
                                                plotly::plotlyOutput(outputId = "plot.county.rate_detection.line")
                                            ),
                                            tabPanel(
-                                               "Mortality Rate",
+                                               "Mortality",
                                                plotly::plotlyOutput(outputId = "plot.county.rate_mortality.line")
                                            ),
                                            tabPanel("Notes",
