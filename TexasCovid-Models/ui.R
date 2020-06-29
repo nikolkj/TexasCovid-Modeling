@@ -20,6 +20,7 @@ require(shiny)
 require(shinydashboard)
 require(dashboardthemes) # experimental, install_github("nik01010/dashboardthemes")
 require(plotly, quietly = TRUE)
+#rdrop2
 
 # LOAD REQUIRED DATA ---
 # Fetch population data
