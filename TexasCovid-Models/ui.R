@@ -9,6 +9,9 @@
 
 rm(list = ls());
 
+# Load Tokens
+drop_token = readRDS(file = "../dropbox_token.rds")
+
 # Load general packages 
 require(tidyverse)
 
@@ -71,6 +74,22 @@ dat_county <<- dat %>%
     nest() %>%
     ungroup() 
 
+# County-level Models
+# ... Generated mod_DailyCount-*.R scripts
+# ... Daily copies stored in "daily-dashboard-objects/".
+# ...
+# ... Update as necessary.
+# ... This should be updated to a remotely read-binary in production
+# ... ... and used to generate "dat_county", above.
+
+# Pull Model Data From Dropbox
+rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-cases.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-tests.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-deaths.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+
+mod_county_cases <<- readRDS("../rdrop_dowloads/mod_DailyCount-cases.RDS") 
+mod_county_tests <<- readRDS("../rdrop_dowloads/mod_DailyCount-tests.RDS") 
+mod_county_deaths <<- readRDS("../rdrop_dowloads/mod_DailyCount-deaths.RDS") 
 
 # CALCULATE DYNAMIC METRICS ----
 # ... Data loaded in "server.r" 
@@ -174,7 +193,7 @@ ui_body = dashboardBody(
                     tabBox(title = tagList(shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome"), 
                                            HTML("<b>Segmentation Details</b>")), selected = "Map",
                            tabPanel("Map", 
-                                    shiny::plotOutput(outputId = "comm.info_segementation.map", width = "700px", height = "600px")),
+                                    plotlyOutput(outputId = "comm.info_segementation.map")),
                            tabPanel("Curve", 
                                     shiny::plotOutput(outputId = "comm.info_segementation.hist", width = "700px", height = "600px"))
                     )
@@ -197,7 +216,8 @@ ui_body = dashboardBody(
                                                            # HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))),
                                                   ),
                                                   tabPanel("Forecasts", 
-                                                           "... Coming Soon ...")
+                                                           plotly::plotlyOutput(outputId = "plot.county.forecasts_tests_total.line")
+                                                           )
                                                   )
                                            ),
                                        fluidRow(tabBox(
@@ -219,7 +239,8 @@ ui_body = dashboardBody(
                                                # uiOutput(outputId = "text.county.daily_cases_comp_html")   
                                         ),
                                            tabPanel("Forecasts",
-                                                    "... Coming Soon ...")
+                                                    plotly::plotlyOutput(outputId = "plot.county.forecasts_cases_total.line")
+                                                    )
                                        )),
                                        fluidRow(tabBox(
                                            title = tagList(
@@ -239,9 +260,26 @@ ui_body = dashboardBody(
                                                # HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))
                                            ),
                                            tabPanel("Forecasts",
-                                                    "... Coming Soon ...")
+                                                    plotly::plotlyOutput(outputId = "plot.county.forecasts_deaths_total.line")
+                                                    )
                                            
-                                       )),
+                                       ))
+                                       ),
+                         shiny::column(width = 6,
+                                       fluidRow(
+                                           tabBox(
+                                               title = tagList(
+                                                   shiny::icon(name = "info-circle", class = "fa-1x", lib = "font-awesome"),
+                                                   HTML("<b>Segmentation Details</b>")
+                                               ), width = 12,
+                                               tabPanel(
+                                                   "Map",
+                                                   plotlyOutput(
+                                                       outputId = "county.info_segementation.map"
+                                                   )
+                                               )
+                                           )
+                                       ),
                                        fluidRow(tabBox(
                                            title = tagList(
                                                shiny::icon(name = "compass", class = "fa-1x", lib = "font-awesome"),
@@ -263,24 +301,7 @@ ui_body = dashboardBody(
                                            tabPanel("Notes",
                                                     "... Coming Soon ...")
                                        ))
-                                       ),
-                         shiny::column(width = 6,
-                                       fluidRow(
-                                           tabBox(
-                                               title = tagList(
-                                                   shiny::icon(name = "info-circle", class = "fa-1x", lib = "font-awesome"),
-                                                   HTML("<b>Segmentation Details</b>")
-                                               ), width = 12,
-                                               tabPanel(
-                                                   "Map",
-                                                   shiny::plotOutput(
-                                                       outputId = "county.info_segementation.map",
-                                                       width = "700px",
-                                                       height = "600px"
-                                                   )
-                                               )
-                                           )
-                                       )))
+                                       ))
                 )), 
         tabItem(tabName = "tab_other_about", "about"),
         tabItem(tabName = "tab_other_support", "support")

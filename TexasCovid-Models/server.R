@@ -29,6 +29,8 @@ plotly_axisformat.date = list(
 plotly_color.cases = "#ffe77c" # @95% opacity
 plotly_color.tests = "#5beb90" 
 plotly_color.deaths = "#ff4837"
+plotly_color.forecast_point = "#778bff"
+plotly_color.forecast_interval = "rgba(243, 205, 255, 0.40)" # #F3CDFF HEXA @40% OPACITY
 
 # Define Server-side Operations ----
 shinyServer(function(input, output) {
@@ -397,10 +399,14 @@ shinyServer(function(input, output) {
     
     # PLOTS: "comm.info_*" ----
     output$comm.info_segementation.hist = renderPlot({plot_TexasCommunities.hist})
-    output$comm.info_segementation.map = renderPlot({plot_TexasCommunities.map})
+    output$comm.info_segementation.map = renderPlotly({
+        ggplotly(plot_TexasCommunities.map)
+    })
     
     # PLOTS: "county.info_*" ----
-    output$county.info_segementation.map = renderPlot({plot_TexasCommunities.map})
+    output$county.info_segementation.map = renderPlotly({
+        ggplotly(plot_TexasCommunities.map)
+    })
     
     # PLOTS: "county.daily_*" ----
     output$plot.county.daily_cases.bar = renderPlotly({
@@ -579,6 +585,244 @@ shinyServer(function(input, output) {
     
     
     # PLOTS: "county.forecasts_*" ----
+    output$plot.county.forecasts_cases_total.line = renderPlotly({
+        temp = mod_county_cases %>%
+            filter(County == input$input_county) %>% 
+            select(forecast) %>% 
+            .$forecast %>% 
+            bind_cols() # Is this really necessary, there should be a better way to access the tibble
+        
+        
+        shiny::validate(shiny::need(expr = !is.na(temp), message = "Insufficient data to generate a forecast."))
+        
+        plot_ly(
+            data = (temp %>%
+                        filter(forecast == "dts")),
+            x = ~ Date,
+            y = ~ value,
+            name = "History",
+            connectgaps = TRUE,
+            line = list(width = 6, color = plotly_color.cases),
+            opacity = .95,
+            type = 'scatter',
+            mode = 'lines'
+        ) %>%
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Hi_95"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                legendgroup = "Conf_90",
+                name = "95% Confidence",
+                line = list(width = 3, color = plotly_color.forecast_interval, opacity = .80),
+                connectgaps = TRUE,
+                type = 'scatter',
+                mode = 'lines'
+            ) %>% 
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Lo_95"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                fill = "tonexty",
+                fillcolor = plotly_color.forecast_interval,
+                showlegend=FALSE,
+                legendgroup = "Conf_90",
+                name = "95% Confidence",
+                line = list(width = 3, color = plotly_color.forecast_interval, opacity = .80),
+                connectgaps = TRUE,
+                type = 'scatter',
+                mode = 'lines'
+            ) %>% 
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Point_Forecast"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                name = "Best Bet",
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1,
+                type = 'scatter',
+                mode = 'lines'
+            )  %>% 
+            layout(
+                p = .,
+                xaxis = list(title = "7-Day Forecast",
+                             family = "Courier New, monospace",
+                             size = 18,
+                             color = "#7f7f7f"),
+                yaxis = list(title = "Total Cases Forecast", titlefont = plotly_titlefont.axis)
+            )
+            
+            
+        
+    })
+    
+    output$plot.county.forecasts_tests_total.line = renderPlotly({
+        temp = mod_county_tests %>%
+            filter(County == input$input_county) %>% 
+            select(forecast) %>% 
+            .$forecast %>% 
+            bind_cols() # Is this really necessary, there should be a better way to access the tibble
+        
+        shiny::validate(shiny::need(expr = !is.na(temp), message = "Insufficient data to generate a forecast."))
+        
+        plot_ly(
+            data = (temp %>%
+                        filter(forecast == "dts")),
+            x = ~ Date,
+            y = ~ value,
+            name = "History",
+            connectgaps = TRUE,
+            line = list(width = 6, color = plotly_color.tests),
+            opacity = .95,
+            type = 'scatter',
+            mode = 'lines'
+        ) %>%
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Hi_95"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                legendgroup = "Conf_90",
+                name = "95% Confidence",
+                line = list(width = 3, color = plotly_color.forecast_interval, opacity = .80),
+                connectgaps = TRUE,
+                type = 'scatter',
+                mode = 'lines'
+            ) %>% 
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Lo_95"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                fill = "tonexty",
+                fillcolor = plotly_color.forecast_interval,
+                showlegend=FALSE,
+                legendgroup = "Conf_90",
+                name = "95% Confidence",
+                line = list(width = 3, color = plotly_color.forecast_interval, opacity = .80),
+                connectgaps = TRUE,
+                type = 'scatter',
+                mode = 'lines'
+            ) %>% 
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Point_Forecast"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                name = "Best Bet",
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1,
+                type = 'scatter',
+                mode = 'lines'
+            )  %>% 
+            layout(
+                p = .,
+                xaxis = list(title = "7-Day Forecast",
+                             family = "Courier New, monospace",
+                             size = 18,
+                             color = "#7f7f7f"),
+                yaxis = list(title = "Total Deaths Forecast", titlefont = plotly_titlefont.axis)
+            )
+        
+        
+        
+    })
+    
+    output$plot.county.forecasts_deaths_total.line = renderPlotly({
+        temp = mod_county_deaths %>%
+            filter(County == input$input_county) %>% 
+            select(forecast) %>% 
+            .$forecast %>% 
+            bind_cols() # Is this really necessary, there should be a better way to access the tibble
+        
+        shiny::validate(shiny::need(expr = !is.na(temp), message = "Insufficient data to generate a forecast."))
+        
+        plot_ly(
+            data = (temp %>%
+                        filter(forecast == "dts")),
+            x = ~ Date,
+            y = ~ value,
+            name = "History",
+            connectgaps = TRUE,
+            line = list(width = 6, color = plotly_color.deaths),
+            opacity = .95,
+            type = 'scatter',
+            mode = 'lines'
+        ) %>%
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Hi_95"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                legendgroup = "Conf_90",
+                name = "95% Confidence",
+                line = list(width = 3, color = plotly_color.forecast_interval, opacity = .80),
+                connectgaps = TRUE,
+                type = 'scatter',
+                mode = 'lines'
+            ) %>% 
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Lo_95"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                fill = "tonexty",
+                fillcolor = plotly_color.forecast_interval,
+                showlegend=FALSE,
+                legendgroup = "Conf_90",
+                name = "95% Confidence",
+                line = list(width = 3, color = plotly_color.forecast_interval, opacity = .80),
+                connectgaps = TRUE,
+                type = 'scatter',
+                mode = 'lines'
+            ) %>% 
+            add_trace(
+                data = (temp %>%
+                            filter(
+                                forecast == "dts.forecasts.Point_Forecast"
+                            )),
+                x = ~ Date,
+                y = ~ value,
+                name = "Best Bet",
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1,
+                type = 'scatter',
+                mode = 'lines'
+            )  %>% 
+            layout(
+                p = .,
+                xaxis = list(title = "7-Day Forecast",
+                             family = "Courier New, monospace",
+                             size = 18,
+                             color = "#7f7f7f"),
+                yaxis = list(title = "Total Tests Forecast", titlefont = plotly_titlefont.axis)
+            )
+        
+        
+        
+    })
+    
     
     # PLOTS: "county.rate_*" ----
     # Rates should use numerator data as COLOR and OPACITY reference
@@ -636,7 +880,7 @@ shinyServer(function(input, output) {
     
     output$county.rates_infected.line = renderPlotly({
         dat_county %>% 
-            filter(County == "Harris") %>%
+            filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             left_join(x = .,
                       y = (pop %>% 
@@ -654,7 +898,7 @@ shinyServer(function(input, output) {
                     x = ~Date,
                     y = ~pcnt_infected,
                     connectgaps = TRUE,
-                    line = list(color = plotly_color.cases, width = 3),
+                    line = list(width = 6, color = plotly_color.cases),
                     opacity = .95,
                     mode = 'lines', 
                     type = 'scatter'
