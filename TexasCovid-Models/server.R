@@ -120,7 +120,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Cases", titlefont = plotly_titlefont.axis, type = "log")
+                yaxis = list(title = "Total Cases", titlefont = plotly_titlefont.axis)
             )
         
         p
@@ -142,7 +142,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Tests", titlefont = plotly_titlefont.axis, type = "log")
+                yaxis = list(title = "Total Tests", titlefont = plotly_titlefont.axis)
             )
         
         p
@@ -162,7 +162,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Deaths", titlefont = plotly_titlefont.axis, type = "log")
+                yaxis = list(title = "Total Deaths", titlefont = plotly_titlefont.axis)
             )
         
         p
@@ -530,7 +530,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Cases", titlefont = plotly_titlefont.axis, type = "log")
+                yaxis = list(title = "Total Cases", titlefont = plotly_titlefont.axis)
             )
         
         p
@@ -554,7 +554,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Tests", titlefont = plotly_titlefont.axis, type = "log")
+                yaxis = list(title = "Total Tests", titlefont = plotly_titlefont.axis)
             )
         
         p
@@ -577,7 +577,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Deaths", titlefont = plotly_titlefont.axis, type = "log")
+                yaxis = list(title = "Total Deaths", titlefont = plotly_titlefont.axis)
             )
         
         p
