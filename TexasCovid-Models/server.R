@@ -479,7 +479,7 @@ shinyServer(function(input, output) {
             arrange(Date) %>%
             mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
                    ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
-                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
+                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right")
             ) 
         
         p = plot_ly() %>%
@@ -509,7 +509,7 @@ shinyServer(function(input, output) {
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = ""),
-                title = plotly_titleformat.plot(plot_title = "Daily Cases"),
+                title = plotly_titleformat.plot(plot_title = paste("Daily Cases:", input$input_county, "County")),
                 showlegend = FALSE
             )
         
@@ -526,7 +526,7 @@ shinyServer(function(input, output) {
             arrange(Date) %>%
             mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
                    ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
-                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
+                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right")
             ) 
         
         p = plot_ly() %>%
@@ -556,7 +556,7 @@ shinyServer(function(input, output) {
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = ""),
-                title = plotly_titleformat.plot(plot_title = "Daily Tests"),
+                title = plotly_titleformat.plot(plot_title = paste("Daily Tests:", input$input_county, "County")),
                 showlegend = FALSE
             )
         
@@ -573,7 +573,7 @@ shinyServer(function(input, output) {
             arrange(Date) %>%
             mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
                    ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
-                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
+                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right")
             ) 
         
         p = plot_ly() %>%
@@ -603,7 +603,7 @@ shinyServer(function(input, output) {
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = ""),
-                title = plotly_titleformat.plot(plot_title = "Daily Deaths"),
+                title = plotly_titleformat.plot(plot_title = paste("Daily Deaths:", input$input_county, "County")),
                 showlegend = FALSE
             )
         
@@ -665,7 +665,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Cases", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste("Total Cases:", input$input_county, "County"))
             )
         
         p
@@ -689,7 +690,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Tests", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste("Total Tests:", input$input_county, "County"))
             )
         
         p
@@ -712,7 +714,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Deaths", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste("Total Deaths:", input$input_county, "County"))
             )
         
         p
