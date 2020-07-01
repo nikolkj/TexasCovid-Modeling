@@ -198,6 +198,8 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "comm.rates_infected.line", height = "750px")),
                            tabPanel("Testing",
                                     plotly::plotlyOutput(outputId = "comm.rates_tested.line", height = "750px")),
+                           tabPanel("Detection",
+                                    plotly::plotlyOutput(outputId = "comm.rates_detection.line", height = "750px")),
                            tabPanel("Mortality", 
                                     plotly::plotlyOutput(outputId = "comm.rates_mortality.line", height = "750px"))
                     ),
