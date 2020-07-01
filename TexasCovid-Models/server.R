@@ -16,6 +16,22 @@ plot_TexasCommunities.map = readRDS(file = "../plot_Texas-Communities_Population
 plotly_titlefont.axis = list(family = "Courier New, monospace",
                              size = 18,
                              color = "#7f7f7f")
+
+plotly_titlefont.plot = list(family = "Arial, bold",
+                             size = 20,
+                             color = "#584f73")
+
+# >>TITLES<<
+plotly_titleformat.plot = function(plot_title){
+    
+    return(list(
+        text = plot_title,
+        xanchor = "left", yanchor = "top",
+        x = 0.08, y = 1, yref = "paper",
+        font = plotly_titlefont.plot
+    ))
+}
+
 # >>AXIS FORMATTING<<
 plotly_axisformat.date = list(
     titlefont = plotly_titlefont.axis,
@@ -70,7 +86,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Daily Cases", titlefont = plotly_titlefont.axis),
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Daily Cases"),
                 showlegend = FALSE
             )
     })
