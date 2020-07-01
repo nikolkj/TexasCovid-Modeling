@@ -38,7 +38,8 @@ plotly_axisformat.date = list(
     titlefont = plotly_titlefont.axis,
     type = "date",
     tickformat = "%m/%d",
-    tickangle = -15
+    tickangle = -15,
+    showgrid = FALSE
 )
 
 # >>PLOTTING COLORS<<
@@ -174,7 +175,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Cases", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Total Cases")
             )
         
         p
@@ -196,7 +198,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Tests", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Total Tests")
             )
         
         p
@@ -216,7 +219,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Deaths", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Total Deaths")
             )
         
         p
@@ -226,7 +230,7 @@ shinyServer(function(input, output) {
     # Rates should use numerator data as COLOR and OPACITY reference
     output$plot.state.rate_detection.line = renderPlotly({
         p = dat_state %>%
-            mutate(daily_detection = round((DailyDelta_cases/DailyDelta_tests), 2)) %>%
+            mutate(daily_detection = round((DailyCount_cases/DailyCount_tests), 2)) %>%
             filter(!is.na(daily_detection)) %>%
             plot_ly(
                 data = .,
@@ -240,7 +244,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Detection Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "", tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = "Detection Rate")
             )
         
         p
@@ -264,7 +269,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "", tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = "Case Mortality")
             )
         
         p
