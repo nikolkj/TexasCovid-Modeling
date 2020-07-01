@@ -22,10 +22,7 @@ require(dashboardthemes) # experimental, install_github("nik01010/dashboardtheme
 require(plotly, quietly = TRUE)
 
 # LOAD REQUIRED DATA ---
-# Fetch population data
-pop <<- readRDS(file = "../texas-demographics_county-populations_segmented.RDS")
-
-# Fetch main data
+# Fetch main data, from GitHub
 dat <<- readr::read_csv(
         file = "https://raw.githubusercontent.com/nikolkj/Texas-Covid/master/daily-county-data/Texas-County-Main.csv",
         col_names = TRUE,
@@ -43,6 +40,22 @@ dat <<- readr::read_csv(
         na = ""
     ) %>% select(-LastUpdateDate) 
 
+# Fetch & load: Population data, from Dropbox
+rdrop2::drop_download(path = "Texas-Covid/texas-demographics_county-populations_segmented.RDS", 
+                      local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+
+pop <<- readRDS(file = "../rdrop_dowloads/texas-demographics_county-populations_segmented.RDS")
+
+# Fetch & load: Forecast models, from Dropbox
+rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-cases.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-tests.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-deaths.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+
+mod_county_cases <<- readRDS("../rdrop_dowloads/mod_DailyCount-cases.RDS") 
+mod_county_tests <<- readRDS("../rdrop_dowloads/mod_DailyCount-tests.RDS") 
+mod_county_deaths <<- readRDS("../rdrop_dowloads/mod_DailyCount-deaths.RDS") 
+
+
 # PREPARE DATA-OBJECTS -----
 # # County-level Data
 # dat <<- dat_ts %>% 
@@ -52,8 +65,15 @@ dat <<- readr::read_csv(
 # State-level Data
 dat_state <<- dat %>% 
     select(-County) %>% 
+    arrange(Date) %>%
     group_by(Date) %>% 
-    summarise_at(vars(-group_cols()), sum, na.rm = TRUE)
+    summarise_at(vars(-group_cols()), sum, na.rm = TRUE) %>%
+    ungroup() %>% 
+    # Calculate 7-day moving averages for DailyDelta_* data
+    mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
+           ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
+           ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
+           )
 
 # Community-level Data
 dat_pop <<- dat %>% 
@@ -82,14 +102,6 @@ dat_county <<- dat %>%
 # ... This should be updated to a remotely read-binary in production
 # ... ... and used to generate "dat_county", above.
 
-# Pull Model Data From Dropbox
-rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-cases.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
-rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-tests.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
-rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-deaths.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
-
-mod_county_cases <<- readRDS("../rdrop_dowloads/mod_DailyCount-cases.RDS") 
-mod_county_tests <<- readRDS("../rdrop_dowloads/mod_DailyCount-tests.RDS") 
-mod_county_deaths <<- readRDS("../rdrop_dowloads/mod_DailyCount-deaths.RDS") 
 
 # CALCULATE DYNAMIC METRICS ----
 # ... Data loaded in "server.r" 
@@ -170,7 +182,7 @@ ui_body = dashboardBody(
                            tabPanel("Detection",
                                     plotly::plotlyOutput(outputId = "plot.state.rate_detection.line")),
                            tabPanel("Mortality",
-                                    plotly::plotlyOutput(outputId = "plot.state.rate_mortality.line")),
+                                    plotly::plotlyOutput(outputId = "plot.state.case_mortality.line")),
                            tabPanel("Notes", 
                                     "... Coming Soon ...")
                            
@@ -190,7 +202,7 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "comm.rates_mortality.line", height = "750px"))
                     ),
                     tabBox(title = tagList(shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome"), 
-                                           HTML("<b>Segmentation Details</b>")), selected = "Map",
+                                           HTML("<b>Reference</b>")), selected = "Map",
                            tabPanel("Map", 
                                     plotlyOutput(outputId = "comm.info_segementation.map")),
                            tabPanel("Curve", 
@@ -258,7 +270,7 @@ ui_body = dashboardBody(
                                                htmlOutput("text.county.daily_deaths_comp")
                                                # HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))
                                            ),
-                                           tabPanel("Forecasts",
+                                           tabPanel("Forecasts", 
                                                     plotly::plotlyOutput(outputId = "plot.county.forecasts_deaths_total.line")
                                                     )
                                            
