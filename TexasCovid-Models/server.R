@@ -34,7 +34,7 @@ plotly_titleformat.plot = function(plot_title){
 
 # >>AXIS FORMATTING<<
 # Dynamic Range
-plotly_range.date = c(max(dat_state$Date)-60, max(dat_state$Date))
+plotly_range.date = c(max(dat_state$Date)-60, max(dat_state$Date)+1)
 
 
 # Formats
@@ -484,7 +484,7 @@ shinyServer(function(input, output) {
             ) %>%
             layout(
                 p = .,
-                xaxis = plotly_axisformat.date,
+                xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = "Daily Cases", titlefont = plotly_titlefont.axis)
             )
         
@@ -506,7 +506,7 @@ shinyServer(function(input, output) {
             ) %>%
             layout(
                 p = .,
-                xaxis = plotly_axisformat.date,
+                xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = "Daily Tests", titlefont = plotly_titlefont.axis)
             )
         
@@ -528,7 +528,7 @@ shinyServer(function(input, output) {
             ) %>%
             layout(
                 p = .,
-                xaxis = plotly_axisformat.date,
+                xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = "Daily Deaths", titlefont = plotly_titlefont.axis)
             )
         
