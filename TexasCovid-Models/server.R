@@ -793,7 +793,9 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Cases Forecast", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste("Total Cases Forecast:", input$input_county, "County"))
+                
             )
             
             
@@ -869,7 +871,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Deaths Forecast", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste("Total Tests Forecast:", input$input_county, "County"))
             )
         
         
@@ -945,7 +948,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Total Tests Forecast", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste("Total Deaths Forecast:", input$input_county, "County"))
             )
         
         
@@ -959,7 +963,7 @@ shinyServer(function(input, output) {
         p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
-            mutate(daily_detection = round((DailyDelta_cases/DailyDelta_tests), 2)) %>%
+            mutate(daily_detection = round((DailyCount_cases/DailyCount_tests), 4)) %>%
             filter(!is.na(daily_detection)) %>%
             plot_ly(
                 data = .,
@@ -972,8 +976,9 @@ shinyServer(function(input, output) {
             ) %>%
             layout(
                 p = .,
-                xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Detection Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                xaxis = plotly_axisformat.date_fixed,
+                yaxis = list(title = "", tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = paste("Case Detection Rate:", input$input_county, "County"))
             )
         
         p
@@ -985,7 +990,7 @@ shinyServer(function(input, output) {
         p = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
-            mutate(daily_mortality = (DailyDelta_deaths/DailyDelta_cases)) %>%
+            mutate(daily_mortality = round((DailyCount_deaths/DailyCount_cases), 4)) %>%
             filter(!is.na(daily_mortality)) %>%
             plot_ly(
                 data = .,
@@ -998,8 +1003,9 @@ shinyServer(function(input, output) {
             ) %>%
             layout(
                 p = .,
-                xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                xaxis = plotly_axisformat.date_fixed,
+                yaxis = list(title = "", tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = paste("Case Mortality Rate:", input$input_county, "County"))
             )
         
         p
@@ -1035,7 +1041,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Pcnt Population Infected", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "", tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = paste("Pcnt. Population Infected:", input$input_county, "County"))
             )
     })
     
