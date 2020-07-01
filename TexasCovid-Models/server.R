@@ -470,66 +470,141 @@ shinyServer(function(input, output) {
     
     # PLOTS: "county.daily_*" ----
     output$plot.county.daily_cases.bar = renderPlotly({
-        p = dat_county %>% 
+        temp = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyDelta_cases)) %>%
-            plot_ly(
-                data = .,
+            
+            # Dynamic moving-average calculation
+            arrange(Date) %>%
+            mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
+                   ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
+                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
+            ) 
+        
+        p = plot_ly() %>%
+            add_trace(
+                p = .,
+                data = temp,
                 x = ~ Date,
                 y = ~ DailyDelta_cases,
                 marker = list(color = plotly_color.cases),
                 opacity = .95,
-                type = "bar"
+                type = "bar",
+                name = "Daily Cases"
+            ) %>%
+            add_trace(
+                p = .,
+                data = temp,
+                x = ~ Date,
+                y = ~ ma_cases,
+                name = "7-day Avg.",
+                type = 'scatter', 
+                mode = 'lines',
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1
             ) %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Daily Cases", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Daily Cases"),
+                showlegend = FALSE
             )
         
         p
     })
     
     output$plot.county.daily_tests.bar = renderPlotly({
-        p = dat_county %>% 
+        temp = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyDelta_tests)) %>%
-            plot_ly(
-                data = .,
+            
+            # Dynamic moving-average calculation
+            arrange(Date) %>%
+            mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
+                   ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
+                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
+            ) 
+        
+        p = plot_ly() %>%
+            add_trace(
+                p = .,
+                data = temp,
                 x = ~ Date,
                 y = ~ DailyDelta_tests,
                 marker = list(color = plotly_color.tests),
-                opacity = .90,
-                type = "bar"
+                opacity = .95,
+                type = "bar",
+                name = "Daily Tests"
+            ) %>%
+            add_trace(
+                p = .,
+                data = temp,
+                x = ~ Date,
+                y = ~ ma_tests,
+                name = "7-day Avg.",
+                type = 'scatter', 
+                mode = 'lines',
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1
             ) %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Daily Tests", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Daily Tests"),
+                showlegend = FALSE
             )
         
         p
     })
     
     output$plot.county.daily_deaths.bar = renderPlotly({
-        p = dat_county %>% 
+        temp = dat_county %>% 
             filter(County == input$input_county) %>%
             unnest(cols = c(data)) %>%
             filter(!is.na(DailyDelta_deaths)) %>%
-            plot_ly(
-                data = .,
+            
+            # Dynamic moving-average calculation
+            arrange(Date) %>%
+            mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
+                   ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
+                   ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
+            ) 
+        
+        p = plot_ly() %>%
+            add_trace(
+                p = .,
+                data = temp,
                 x = ~ Date,
                 y = ~ DailyDelta_deaths,
                 marker = list(color = plotly_color.deaths),
-                opacity = .90,
-                type = "bar"
+                opacity = .95,
+                type = "bar",
+                name = "Daily Deaths"
+            ) %>%
+            add_trace(
+                p = .,
+                data = temp,
+                x = ~ Date,
+                y = ~ ma_deaths,
+                name = "7-day Avg.",
+                type = 'scatter', 
+                mode = 'lines',
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1
             ) %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Daily Deaths", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Daily Deaths"),
+                showlegend = FALSE
             )
         
         p
