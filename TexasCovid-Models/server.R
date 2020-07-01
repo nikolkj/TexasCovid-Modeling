@@ -262,7 +262,7 @@ shinyServer(function(input, output) {
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = "", tickformat = ".2%"),
-                title = plotly_titleformat.plot(plot_title = "Detection Rate")
+                title = plotly_titleformat.plot(plot_title = "Case Detection Rate")
             )
         
         p
@@ -287,7 +287,7 @@ shinyServer(function(input, output) {
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = "", tickformat = ".2%"),
-                title = plotly_titleformat.plot(plot_title = "Case Mortality")
+                title = plotly_titleformat.plot(plot_title = "Case Mortality Rate")
             )
         
         p
@@ -318,7 +318,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Pcnt Population Infected", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "Pcnt. Population Infected", titlefont = plotly_titlefont.axis, tickformat = ".2%")
             ) 
         
         f2 = dat_pop %>%
@@ -342,7 +342,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Daily Infection Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "Daily Infection Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = "Infection Rates for Community-types")
             )
         
         fig = subplot(f1, f2, nrows = 2, shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
@@ -369,7 +370,7 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Pcnt Population Tested", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "Pcnt. Population Tested", titlefont = plotly_titlefont.axis, tickformat = ".2%")
             )
         
         f2 = dat_pop %>%
@@ -391,7 +392,8 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Daily Testing Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "Daily Testing Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = "Testing Rates for Community-types")
             )
         
         fig = subplot(f1, f2, nrows = 2, shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
@@ -400,7 +402,7 @@ shinyServer(function(input, output) {
     })
     
     output$comm.rates_mortality.line = renderPlotly({
-        f1 = 
+        p = 
         dat_pop %>%
             group_by(Date, pop_group) %>%
             mutate(pcnt_mortality = DailyCount_deaths/DailyCount_cases) %>% 
@@ -420,58 +422,39 @@ shinyServer(function(input, output) {
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Case Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "", tickformat = ".2%", range = c(0,.06)),
+                title = plotly_titleformat.plot(plot_title = "Case Mortality Rate for Community-types")
             )
         
-        f2 = dat_pop %>%
+        p
+    })
+    
+    output$comm.rates_detection.line = renderPlotly({
+        p = 
+            dat_pop %>%
             group_by(Date, pop_group) %>%
-            mutate(pcnt_mortality = DailyDelta_deaths/DailyDelta_cases) %>% 
-            filter(!is.na(pcnt_mortality)) %>%
-            select(Date, pop_group, pcnt_mortality) %>%
+            mutate(pcnt_detection = DailyCount_cases/DailyCount_tests) %>% 
+            filter(!is.na(pcnt_detection)) %>%
+            select(Date, pop_group, pcnt_detection) %>%
             ungroup() %>%
             plot_ly(data = ., 
                     x = ~Date,
-                    y = ~pcnt_mortality,
+                    y = ~pcnt_detection,
+                    connectgaps = TRUE,
                     color = ~pop_group,
                     legendgroup = ~pop_group,
                     mode = 'lines', 
                     line = list(width = 3),
-                    type = 'scatter', 
-                    showlegend = FALSE
-            ) %>%
-            layout(
-                p = .,
-                xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Daily Case Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
-            )
-        
-        fig = subplot(f1, f2, nrows = 2, shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
-        fig
-        
-    })
-    
-    output$comm.rates_dailymortality.line = renderPlotly({
-        dat_pop %>%
-            group_by(Date, pop_group) %>%
-            mutate(pcnt_mortality = DailyDelta_deaths/DailyDelta_cases) %>% 
-            filter(!is.na(pcnt_mortality)) %>%
-            select(Date, pop_group, pcnt_mortality) %>%
-            ungroup() %>%
-            plot_ly(data = ., 
-                    x = ~Date,
-                    y = ~pcnt_mortality,
-                    connectgaps = TRUE,
-                    color = ~pop_group,
-                    mode = 'lines', 
-                    line = list(width = 3),
-                    # opacity = .90,
                     type = 'scatter'
             ) %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date_fixed,
-                yaxis = list(title = "Daily Case Mortality Rate", titlefont = plotly_titlefont.axis, tickformat = ".2%")
+                yaxis = list(title = "", tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = "Case Detection Rate for Community-types")
             )
+        
+        p
     })
     
     # PLOTS: "comm.info_*" ----
