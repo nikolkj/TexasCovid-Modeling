@@ -44,22 +44,35 @@ shinyServer(function(input, output) {
     
     # PLOTS: "state.daily_*" ----
     output$plot.state.daily_cases.bar = renderPlotly({
-        p = dat_state %>% 
-            plot_ly(
-                data = .,
+        p = plot_ly() %>%
+            add_trace(
+                data = dat_state,
                 x = ~ Date,
                 y = ~ DailyDelta_cases,
                 marker = list(color = plotly_color.cases),
                 opacity = .95,
-                type = "bar"
-            ) %>%
+                type = "bar",
+                name = "Daily Cases"
+            ) 
+            
+        p = add_trace(p = p, 
+                      data = dat_state, 
+                      x = ~Date,
+                      y = ~ma_cases,
+                      name = "7-day Avg.",
+                      type = 'scatter', 
+                      mode = 'lines',
+                      connectgaps = TRUE,
+                      line = list(width = 4, color = plotly_color.forecast_point),
+                      opacity = 1
+                      )
+        p = p %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Daily Cases", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = "Daily Cases", titlefont = plotly_titlefont.axis),
+                showlegend = FALSE
             )
-        
-        p
     })
     
     output$plot.state.daily_tests.bar = renderPlotly({
@@ -194,14 +207,14 @@ shinyServer(function(input, output) {
         
     })
     
-    output$plot.state.rate_mortality.line = renderPlotly({
+    output$plot.state.case_mortality.line = renderPlotly({
         p = dat_state %>%
-            mutate(daily_mortality = (DailyDelta_deaths/DailyDelta_cases)) %>%
-            filter(!is.na(daily_mortality)) %>%
+            mutate(case_mortality = (DailyCount_deaths/DailyCount_cases)) %>%
+            filter(!is.na(case_mortality)) %>%
             plot_ly(
                 data = .,
                 x = ~ Date,
-                y = ~ daily_mortality,
+                y = ~ case_mortality,
                 connectgaps = TRUE,
                 line = list(color = plotly_color.deaths, width = 5),
                 opacity = .90,
