@@ -27,13 +27,14 @@ plotly_titleformat.plot = function(plot_title){
     return(list(
         text = plot_title,
         xanchor = "left", yanchor = "top",
-        x = 0.08, y = 1, yref = "paper",
+        x = 0.08, y = 1.1, yref = "paper",
         font = plotly_titlefont.plot
     ))
 }
 
 # >>AXIS FORMATTING<<
 plotly_axisformat.date = list(
+    title = "",
     titlefont = plotly_titlefont.axis,
     type = "date",
     tickformat = "%m/%d",
@@ -93,46 +94,69 @@ shinyServer(function(input, output) {
     })
     
     output$plot.state.daily_tests.bar = renderPlotly({
-        p = dat_state %>%
-            filter(!is.na(DailyDelta_tests)) %>%
-            plot_ly(
-                data = .,
+        p = plot_ly() %>%
+            add_trace(
+                data = dat_state,
                 x = ~ Date,
                 y = ~ DailyDelta_tests,
                 marker = list(color = plotly_color.tests),
-                opacity = .90,
-                type = "bar"
-            ) %>%
+                opacity = .95,
+                type = "bar",
+                name = "Daily Tests"
+            ) 
+        
+        p = add_trace(p = p, 
+                      data = dat_state, 
+                      x = ~Date,
+                      y = ~ma_tests,
+                      name = "7-day Avg.",
+                      type = 'scatter', 
+                      mode = 'lines',
+                      connectgaps = TRUE,
+                      line = list(width = 4, color = plotly_color.forecast_point),
+                      opacity = 1
+        )
+        p = p %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Daily Tests", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Daily Tests"),
+                showlegend = FALSE
             )
-        
-        p
     })
     
     output$plot.state.daily_deaths.bar = renderPlotly({
-        p = dat_state %>%
-            plot_ly(
-                data = .,
+        p = plot_ly() %>%
+            add_trace(
+                data = dat_state,
                 x = ~ Date,
                 y = ~ DailyDelta_deaths,
                 marker = list(color = plotly_color.deaths),
-                opacity = .90,
-                type = "bar"
-            ) %>%
+                opacity = .95,
+                type = "bar",
+                name = "Daily Deaths"
+            ) 
+        
+        p = add_trace(p = p, 
+                      data = dat_state, 
+                      x = ~Date,
+                      y = ~ma_deaths,
+                      name = "7-day Avg.",
+                      type = 'scatter', 
+                      mode = 'lines',
+                      connectgaps = TRUE,
+                      line = list(width = 4, color = plotly_color.forecast_point),
+                      opacity = 1
+        )
+        p = p %>%
             layout(
                 p = .,
                 xaxis = plotly_axisformat.date,
-                yaxis = list(title = "Daily Deaths", titlefont = plotly_titlefont.axis)
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = "Daily Deaths"),
+                showlegend = FALSE
             )
-        
-        p
-    })
-    
-    output$plot.state.daily_cases.curveicon = renderPlot({
-        temp
     })
     
     # PLOTS: "state.total_*" ----
