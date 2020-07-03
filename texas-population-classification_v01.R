@@ -152,7 +152,7 @@ p = pop_maps %>%
 plotly::ggplotly(p) # preview objects
 
 # Save plot
-saveRDS(object = p, file = "plot_Texas-Communities_Population-Segmentation-Map.RDS")
+saveRDS(object = p, file = "shiny-server_files/plot_Texas-Communities_Population-Segmentation-Map.RDS")
 
 dev.off()
 
