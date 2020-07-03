@@ -4,7 +4,7 @@ require(magrittr)
 require(forecast)
 
 dat = readr::read_csv(
-  file = "https://raw.githubusercontent.com/nikolkj/Texas-Covid/master/daily-county-data/Texas-County-Main.csv",
+  file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/Texas-County-Main.csv",
   col_names = TRUE,
   col_types = cols(
     County = readr::col_factor(),
@@ -215,10 +215,10 @@ dat = dat %>%
   select(-data_ts, -data)
 
 # Save Local
-saveRDS(object = dat, file = "daily-dashboard-objects/mod_DailyCount-cases.RDS")
+saveRDS(object = dat, file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/mod_DailyCount-cases.RDS")
 
 # Save to Dropbox
 drop_token = readRDS(file = "dropbox_token.rds")
-rdrop2::drop_upload(file = "daily-dashboard-objects/mod_DailyCount-cases.RDS", path = "Texas-Covid/", dtoken = drop_token)
+rdrop2::drop_upload(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/mod_DailyCount-cases.RDS", path = "Texas-Covid/", dtoken = drop_token)
 
 
