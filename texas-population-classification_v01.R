@@ -137,8 +137,8 @@ p = pop_maps %>%
   geom_polygon(color = "black", size = 0.2) + 
   coord_map(projection = "albers", lat0 = lat_lims[1], lat1 = lat_lims[2]) +
   xlab("") + ylab("") +
-  labs(fill = "County-type") +
-  ggtitle(label = "Texas County Classification", subtitle = "Community-types") +
+  labs(fill = "") +
+  ggtitle(label = "Texas Communities") +
   theme(legend.position = "right",
         legend.direction = "vertical",
         legend.text = element_text(size = 12),
