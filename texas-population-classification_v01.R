@@ -18,7 +18,9 @@ require(tidyverse)
 require(magrittr)
 
 # Load Data
-pop = readr::read_csv(file = "2018_txpopest_county.csv", col_names = TRUE, trim_ws = TRUE) # Secondary source
+pop = readr::read_csv(file = "2018_txpopest_county.csv", col_names = TRUE, trim_ws = TRUE) 
+# ... Data sourced from: "https://demographics.texas.gov/Data/TPEPP/Estimates/"
+# ... Direct download link: "https://demographics.texas.gov/Resources/TPEPP/Estimates/2018/2018_txpopest_county.csv"
 
 # Simple Pre-processing 
 pop = pop %>% 
@@ -93,19 +95,22 @@ p = pop %>%
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   ggthemes::theme_fivethirtyeight() +
   xlab("Jan 2019 Population Estimate") + ylab("Pcnt. of Counties") +
-  labs(fill = "Community") +
+  labs(fill = "") +
   ggtitle(label = "Texas Communities", subtitle = "Population Segmentation, Log-scale") +
   theme(legend.position = "right",
         legend.direction = "vertical",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
-        axis.title = element_text()
+        axis.title = element_text(),
+        plot.background = element_rect(fill = "white"),
+        legend.background = element_rect(fill = "white"),
+        panel.background = element_rect(fill = "white")
         )
 
-p
-plotly::ggplotly(p)
+plotly::ggplotly(p) # preview objects
 
-saveRDS(object = p, file = "plot_Texas-Communities_Population-Segmentation.RDS")
+# Save plot
+saveRDS(object = p, file = "shiny-server_files/plot_Texas-Communities_Population-Segmentation.RDS")
 
 
 # Map [pop] ----
@@ -144,13 +149,14 @@ p = pop_maps %>%
         panel.background = element_rect(fill = "white")
   )
 
-plotly::ggplotly(p)
+plotly::ggplotly(p) # preview objects
 
+# Save plot
 saveRDS(object = p, file = "plot_Texas-Communities_Population-Segmentation-Map.RDS")
 
 dev.off()
 
 # Export Key Objects ----
-saveRDS(object = texas_geo, "texas-shapefile_county-level.RDS")
-saveRDS(object = pop, "texas-demographics_county-populations_segmented.RDS")
+saveRDS(object = texas_geo, "shiny-server_files/texas-shapefile_county-level.RDS")
+saveRDS(object = pop, "shiny-server_files/texas-demographics_county-populations_segmented.RDS")
 
