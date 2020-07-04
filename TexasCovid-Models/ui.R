@@ -7,114 +7,22 @@
 #    http://shiny.rstudio.com/
 #
 
-rm(list = ls());
-
-# Load Tokens
-drop_token = readRDS(file = "../dropbox_token.rds")
-
-# Load general packages 
-require(tidyverse)
-
-# Load shiny packages
-require(shiny)
-require(shinydashboard)
-require(dashboardthemes) # experimental, install_github("nik01010/dashboardthemes")
-require(plotly, quietly = TRUE)
-
 # LOAD REQUIRED DATA ---
-# Fetch main data, from GitHub
-dat <<- readr::read_csv(
-        file = "https://raw.githubusercontent.com/nikolkj/Texas-Covid/master/daily-county-data/Texas-County-Main.csv",
-        col_names = TRUE,
-        col_types = cols(
-            County = readr::col_factor(),
-            Date = readr::col_date(),
-            DailyCount_cases = readr::col_integer(),
-            DailyDelta_cases = readr::col_integer(),
-            DailyCount_tests = readr::col_integer(),
-            DailyDelta_tests = readr::col_integer(),
-            DailyCount_deaths = readr::col_integer(),
-            DailyDelta_deaths = readr::col_integer(),
-            LastUpdateDate = readr::col_date()
-        ),
-        na = ""
-    ) %>% select(-LastUpdateDate) 
+# ... Automatically loaded through special "global.R" file
 
-# Fetch & load: Population data, from Dropbox
-rdrop2::drop_download(path = "Texas-Covid/texas-demographics_county-populations_segmented.RDS", 
-                      local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
+# LOAD PACKAGES ----
+# Load shiny packages
+require(shiny, quietly = TRUE)
+require(shinydashboard, quietly = TRUE)
+require(dashboardthemes, quietly = TRUE) # experimental, install_github("nik01010/dashboardthemes")
 
-pop <<- readRDS(file = "../rdrop_dowloads/texas-demographics_county-populations_segmented.RDS")
+# Load general packages ...
+require(tidyverse)
+# zoo
+# imputeTS
 
-# Fetch & load: Forecast models, from Dropbox
-rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-cases.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
-rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-tests.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
-rdrop2::drop_download(path = "Texas-Covid/mod_DailyCount-deaths.RDS", local_path = "../rdrop_dowloads/", overwrite = TRUE, dtoken = drop_token )
-
-mod_county_cases <<- readRDS("../rdrop_dowloads/mod_DailyCount-cases.RDS") 
-mod_county_tests <<- readRDS("../rdrop_dowloads/mod_DailyCount-tests.RDS") 
-mod_county_deaths <<- readRDS("../rdrop_dowloads/mod_DailyCount-deaths.RDS") 
-
-
-# PREPARE DATA-OBJECTS -----
-# # County-level Data
-# dat <<- dat_ts %>% 
-#     select(County, data) %>% 
-#     unnest(data = ., cols = c(data))
-
-# State-level Data
-dat_state <<- dat %>% 
-    select(-County) %>% 
-    arrange(Date) %>%
-    group_by(Date) %>% 
-    summarise_at(vars(-group_cols()), sum, na.rm = TRUE) %>%
-    ungroup() %>% 
-    # Calculate 7-day moving averages for DailyDelta_* data
-    mutate(ma_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
-           ma_tests = zoo::rollmean(x = DailyDelta_tests, k = 7, fill = 0, align = "right"),
-           ma_deaths = zoo::rollmean(x = DailyDelta_deaths, k = 7, fill = 0, align = "right"),
-           )
-
-# Community-level Data
-dat_pop <<- dat %>% 
-    left_join(x = .,
-              y = (pop %>% 
-                       select(County, pop_group, jan1_2019_pop_est) %>%
-                       rename(Population = jan1_2019_pop_est)
-                   ), 
-              by = "County") %>%
-    select(-County) %>% 
-    group_by(pop_group, Date) %>% 
-    summarise_at(vars(-group_cols()), sum)
-
-# County-level Data
-dat_county <<- dat %>% 
-    group_by(County) %>%
-    arrange(Date) %>% 
-    nest() %>%
-    ungroup() 
-
-# County-level Models
-# ... Generated mod_DailyCount-*.R scripts
-# ... Daily copies stored in "daily-dashboard-objects/".
-# ...
-# ... Update as necessary.
-# ... This should be updated to a remotely read-binary in production
-# ... ... and used to generate "dat_county", above.
-
-
-# CALCULATE DYNAMIC METRICS ----
-# ... Data loaded in "server.r" 
-
-# >>STATE TAB<<
-state.comps.new_cases = (sum(dat_state$DailyDelta_cases < dat_state$DailyDelta_cases[nrow(dat_state)]) / nrow(dat_state) * 100) %>%
-    round(x = ., digits = 0)
-
-state.comps.new_tests = (sum(dat_state$DailyDelta_tests > dat_state$DailyDelta_tests[nrow(dat_state)]) / nrow(dat_state) * 100) %>%
-    round(x = ., digits = 0)
-
-state.comps.new_deaths = (sum(dat_state$DailyDelta_deaths < dat_state$DailyDelta_deaths[nrow(dat_state)]) / nrow(dat_state) * 100) %>%
-    round(x = ., digits = 0)
+# Other ...
+require(plotly, quietly = TRUE)
 
 # DEFINE UI ELEMENTS ----
 # Define sidebar contents
@@ -122,13 +30,13 @@ ui_sidebar = dashboardSidebar(
     sidebarMenu(
         menuItem(text = "County Data",
                  tabName = "tab_dash_county", 
-                 icon = shiny::icon(name = "square", class = "fa-1x",lib = "font-awesome")),
+                 icon = shiny::icon(name = "th", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "Community Data",
                  tabName = "tab_dash_community", 
                  icon = shiny::icon(name = "th-large", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "State Data",
                  tabName = "tab_dash_state", 
-                 icon = shiny::icon(name = "th", class = "fa-1x",lib = "font-awesome")),
+                 icon = shiny::icon(name = "square", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "About", 
                  tabName = "tab_other_about",
                  icon = shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome")),
@@ -150,7 +58,9 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "plot.state.total_tests.line")),
                            tabPanel("Daily",
                                     plotly::plotlyOutput(outputId = "plot.state.daily_tests.bar"),
-                                    HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>")))
+                                    # HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))
+                                    htmlOutput("text.state.daily_tests_comp")
+                                    )
                            
                     ),
                     
@@ -160,7 +70,8 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "plot.state.total_cases.line")),
                            tabPanel("Daily",
                                     plotly::plotlyOutput(outputId = "plot.state.daily_cases.bar"),
-                                    HTML(paste0("<br>Appx. <b>", state.comps.new_cases, "%</b> of the days were better.</br>"))
+                                    # HTML(paste0("<br>Appx. <b>", state.comps.new_cases, "%</b> of the days were better.</br>"))
+                                    htmlOutput("text.state.daily_cases_comp")
                            )
                            
                     )
@@ -174,7 +85,9 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "plot.state.total_deaths.line")),
                            tabPanel("Daily",
                                     plotly::plotlyOutput(outputId = "plot.state.daily_deaths.bar"),
-                                    HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>")))
+                                    # HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))
+                                    htmlOutput("text.state.daily_deaths_comp")
+                                    )
                            
                     ),
                     tabBox(title = tagList(shiny::icon(name = "compass", class = "fa-1x",lib = "font-awesome"), 
@@ -184,7 +97,7 @@ ui_body = dashboardBody(
                            tabPanel("Mortality",
                                     plotly::plotlyOutput(outputId = "plot.state.case_mortality.line")),
                            tabPanel("Notes", 
-                                    "... Coming Soon ...")
+                                    shiny::includeHTML(path = "rate-defintions.html"))
                            
                     )
                     
@@ -207,7 +120,7 @@ ui_body = dashboardBody(
                                            HTML("<b>Reference</b>")), selected = "Map",
                            tabPanel("Map", 
                                     plotlyOutput(outputId = "comm.info_segementation.map")),
-                           tabPanel("Curve", 
+                           tabPanel("Segmentation", 
                                     shiny::plotOutput(outputId = "comm.info_segementation.hist", width = "700px", height = "600px"))
                     )
                 )),
@@ -286,10 +199,14 @@ ui_body = dashboardBody(
                                                    HTML("<b>Reference</b>")
                                                ), width = 12,
                                                tabPanel(
-                                                   "County-Types",
+                                                   "Map",
                                                    plotlyOutput(
                                                        outputId = "county.info_segementation.map"
                                                    )
+                                               ),
+                                               tabPanel(
+                                                    "Forecasting Method",
+                                                   shiny::includeHTML("forecast-definitions.html")
                                                )
                                            )
                                        ),
@@ -299,6 +216,9 @@ ui_body = dashboardBody(
                                                HTML("<b>Rates</b>")
                                            ),
                                            width = 12,
+                                           tabPanel("Risk",
+                                                    plotly::plotlyOutput(outputId = "county.rates_risk.line")
+                                                    ),
                                            tabPanel(
                                                "Infection",
                                                plotly::plotlyOutput(outputId = "county.rates_infected.line")
@@ -312,7 +232,7 @@ ui_body = dashboardBody(
                                                plotly::plotlyOutput(outputId = "plot.county.rate_mortality.line")
                                            ),
                                            tabPanel("Notes",
-                                                    "... Coming Soon ...")
+                                                    shiny::includeHTML(path = "rate-defintions.html"))
                                        ))
                                        ))
                 )), 
