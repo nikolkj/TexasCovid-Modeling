@@ -7,14 +7,10 @@
 #    http://shiny.rstudio.com/
 #
 
-# LOAD EXTERNAL PLOTS ----
-plot_TexasCommunities.hist = readRDS(file = "../plot_Texas-Communities_Population-Segmentation.RDS")
-plot_TexasCommunities.map = readRDS(file = "../plot_Texas-Communities_Population-Segmentation-Map.RDS")
-
 # DEF. GENERIC PLOTTING PARAMETERS ----
 # >>FONTS<<
-plotly_titlefont.axis = list(family = "Courier New, monospace",
-                             size = 18,
+plotly_titlefont.axis = list(family = "Arial",
+                             size = 16,
                              color = "#7f7f7f")
 
 plotly_titlefont.plot = list(family = "Arial, bold",
@@ -75,6 +71,31 @@ shinyServer(function(input, output) {
                     choices = unique(as.character(dat$County)), 
                     multiple = FALSE, selected = "Harris")
     )
+    
+    # TEXT: "state.daily_*" ----
+    output$text.state.daily_cases_comp = renderText({
+
+        comp = (sum(dat_state$DailyDelta_cases < dat_state$DailyDelta_cases[nrow(dat_state)]) / nrow(dat_state) * 100) %>%
+            round(x = ., digits = 0)
+        
+        paste0("<br>Appx. <b>", as.character(comp), "%</b> of the days were better.</br>")
+    })
+    
+    output$text.state.daily_tests_comp = renderText({
+        
+        comp = (sum(dat_state$DailyDelta_tests < dat_state$DailyDelta_tests[nrow(dat_state)]) / nrow(dat_state) * 100) %>%
+            round(x = ., digits = 0)
+        
+        paste0("<br>Appx. <b>", as.character(comp), "%</b> of the days were better.</br>")
+    })
+    
+    output$text.state.daily_deaths_comp = renderText({
+        
+        comp = (sum(dat_state$DailyDelta_deaths < dat_state$DailyDelta_deaths[nrow(dat_state)]) / nrow(dat_state) * 100) %>%
+            round(x = ., digits = 0)
+        
+        paste0("<br>Appx. <b>", as.character(comp), "%</b> of the days were better.</br>")
+    })
     
     
     # PLOTS: "state.daily_*" ----
@@ -1040,10 +1061,99 @@ shinyServer(function(input, output) {
             ) %>%
             layout(
                 p = .,
-                xaxis = plotly_axisformat.date,
+                xaxis = plotly_axisformat.date_fixed,
                 yaxis = list(title = "", tickformat = ".2%"),
                 title = plotly_titleformat.plot(plot_title = paste("Pcnt. Population Infected:", input$input_county, "County"))
             )
+    })
+    
+    output$county.rates_risk.line = renderPlotly({
+        
+        plot_dat = dat_county %>% 
+            filter(County == input$input_county) %>%
+            unnest(cols = c(data)) %>%
+            left_join(x = .,
+                      y = (pop %>% 
+                               select(County, jan1_2019_pop_est) %>%
+                               rename(Population = jan1_2019_pop_est)
+                      ), 
+                      by = "County") %>% 
+            ungroup() 
+        
+        plot_period = c(min(dat_county$data[[1]]$Date), 
+                        max(dat_county$data[[1]]$Date)
+        )
+        
+        plot_dat = plot_dat %>% 
+            group_by(Date) %>%
+            mutate(dt_infection = DailyDelta_cases/Population,
+                   Date = as.Date(Date)) %>%
+            ungroup()  %>% 
+            arrange(Date) %>%
+            complete(Date = seq.Date(plot_period[1], plot_period[2], by="days")) %>% 
+            mutate(ma_dt = zoo::rollmean(x = dt_infection, k = 7, fill = 0, align = "right"),
+                   ma_dt = imputeTS::na_locf(x = ma_dt, option = "locf", na_remaining = "rev"),
+                   ma_dt = ma_dt * 1e5) %>%
+            mutate(Risk = ifelse(ma_dt < 1, "Low",
+                                 ifelse(ma_dt < 10, "Moderate",
+                                        ifelse(ma_dt < 25, "Moderate High", "High"))),
+                   Risk = factor(Risk, levels = c("Low", "Moderate", "Moderate High", "High"), ordered = TRUE)) 
+        
+        plot_dat = plot_dat %>% 
+            group_by(Risk) %>% 
+            nest() 
+        
+        for(i in seq_along(plot_dat$Risk)){
+            plot_dat$data[[i]] = plot_dat$data[[i]] %>% 
+                complete(Date = seq.Date(plot_period[1], plot_period[2], by="day"))
+        }
+        
+        p = plot_ly(
+                    # line = list(width = 4),
+                    opacity = .95,
+                    type = 'scatter',
+                    mode = 'markers'
+                    # connectgaps = FALSE
+                    )
+        p = p %>% 
+            add_trace(p = ., 
+                      data = (plot_dat$data %>% bind_rows() %>% filter(!is.na(ma_dt)) %>% arrange(Date) ),
+                      x = ~Date,
+                      y = ~ma_dt, 
+                      mode = "lines",
+                      line = list(width = 1, color = plotly_color.forecast_point),
+                      showlegend = FALSE) %>%
+            add_trace(p = ., data = tryCatch(expr = plot_dat$data[[1]], error = function(e){return(tibble(Date = NA, ma_dt = NA))}), 
+                      x = ~Date, y = ~ma_dt, mode = 'markers',
+                      legendgroup = "Risk", name = levels(plot_dat$Risk)[1], 
+                      marker = list(color = "#10cc26", size = 10)
+                      ) %>%
+            add_trace(p = ., data = tryCatch(expr = plot_dat$data[[2]], error = function(e){return(tibble(Date = NA, ma_dt = NA))}), 
+                      x = ~Date, y = ~ma_dt, mode = 'markers',
+                      legendgroup = "Risk", name = levels(plot_dat$Risk)[2], 
+                      marker = list(color = "#ffea00", size = 10)
+                      ) %>%
+            add_trace(p = ., data = tryCatch(expr = plot_dat$data[[3]], error = function(e){return(tibble(Date = NA, ma_dt = NA))}), 
+                      x = ~Date, y = ~ma_dt, mode = 'markers',
+                      legendgroup = "Risk", name = levels(plot_dat$Risk)[3], 
+                      marker = list(color = "#ff8400", size = 10)
+                      ) %>%
+            add_trace(p = ., data = tryCatch(expr = plot_dat$data[[4]], error = function(e){return(tibble(Date = NA, ma_dt = NA))}), 
+                      x = ~Date, y = ~ma_dt, mode = 'markers',
+                      legendgroup = "Risk", name = levels(plot_dat$Risk)[4], 
+                      marker = list(color = "#ff0011", size = 10)
+                      )
+            
+        
+        p = p %>% 
+            layout(p = ., 
+                   xaxis = plotly_axisformat.date_fixed,
+                   yaxis = list(title = "New Cases per 100K People", titlefont = plotly_titlefont.axis),
+                   title = plotly_titleformat.plot(plot_title = paste("Risk:", input$input_county, "County"))
+                   )
+        
+        p
+        
     })
     
 })
