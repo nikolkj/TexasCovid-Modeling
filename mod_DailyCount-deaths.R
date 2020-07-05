@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 # Create model-objects 
 
 rm(list = ls());

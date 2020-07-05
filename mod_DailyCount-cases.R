@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 rm(list = ls());
 require(tidyverse)
 require(magrittr)
