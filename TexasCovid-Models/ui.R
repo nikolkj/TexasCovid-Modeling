@@ -48,9 +48,13 @@ ui_sidebar = dashboardSidebar(
 
 # Define body & tab contents
 ui_body = dashboardBody(
-    dashboardthemes::shinyDashboardThemes(theme = "grey_dark"), # set theme from package::dashboardthemes
+    dashboardthemes::shinyDashboardThemes(theme = "grey_light"), # set theme from package::dashboardthemes
     tabItems(
         tabItem(tabName = "tab_dash_state", 
+                fluidPage(
+                fluidRow(shinydashboard::box(title = "About: State Data", status = "success", collapsible = TRUE, collapsed = FALSE,
+                                             includeHTML("state_dash-info.html"))),
+                shiny::hr(),
                 fluidRow(
                     tabBox(title = tagList(shiny::icon(name = "stethoscope", class = "fa-1x",lib = "font-awesome"), 
                                            HTML("<b>Tests</b>")), selected = "Daily", 
@@ -96,15 +100,19 @@ ui_body = dashboardBody(
                                     plotly::plotlyOutput(outputId = "plot.state.rate_detection.line")),
                            tabPanel("Mortality",
                                     plotly::plotlyOutput(outputId = "plot.state.case_mortality.line")),
-                           tabPanel("Notes", 
+                           tabPanel("Definitions", 
                                     shiny::includeHTML(path = "rate-defintions.html"))
                            
                     )
                     
                 )
-        ),
+        )),
         tabItem(tabName = "tab_dash_community", 
-                fluidRow(
+                fluidPage(
+                    fluidRow(shinydashboard::box(title = "About: Community Data", status = "success", collapsible = TRUE, collapsed = FALSE,
+                                                 includeHTML("community_dash-info.html"))),
+                    shiny::hr(),
+                    fluidRow(
                     tabBox(title = tagList(shiny::icon(name = "compass", class = "fa-1x",lib = "font-awesome"), 
                                            HTML("<b>Rates</b>")),
                            tabPanel("Infection",
@@ -114,7 +122,9 @@ ui_body = dashboardBody(
                            tabPanel("Detection",
                                     plotly::plotlyOutput(outputId = "comm.rates_detection.line", height = "750px")),
                            tabPanel("Mortality", 
-                                    plotly::plotlyOutput(outputId = "comm.rates_mortality.line", height = "750px"))
+                                    plotly::plotlyOutput(outputId = "comm.rates_mortality.line", height = "750px")),
+                           tabPanel("Definitions",
+                                    shiny::includeHTML(path = "rate-defintions.html"))
                     ),
                     tabBox(title = tagList(shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome"), 
                                            HTML("<b>Reference</b>")), selected = "Map",
@@ -123,9 +133,12 @@ ui_body = dashboardBody(
                            tabPanel("Segmentation", 
                                     shiny::plotOutput(outputId = "comm.info_segementation.hist", width = "700px", height = "600px"))
                     )
-                )),
+                ))),
         tabItem(tabName = "tab_dash_county", 
                 fluidPage(
+                fluidRow(shinydashboard::box(title = "About: County Data", status = "success", collapsible = TRUE, collapsed = FALSE,
+                                             includeHTML("county_dash-info.html"))),
+                    shiny::hr(),
                 fluidRow(
                     shiny::column(width = 4, uiOutput("select.county_name"), offset = 0)
                 ),
@@ -231,7 +244,7 @@ ui_body = dashboardBody(
                                                "Mortality",
                                                plotly::plotlyOutput(outputId = "plot.county.rate_mortality.line")
                                            ),
-                                           tabPanel("Notes",
+                                           tabPanel("Definitions",
                                                     shiny::includeHTML(path = "rate-defintions.html"))
                                        ))
                                        ))
@@ -244,7 +257,7 @@ ui_body = dashboardBody(
 
 # Render ui
 dashboardPage(
-    dashboardHeader(title = "Texas Covid-19 Dashboard"),
+    dashboardHeader(title = "TexasCovid"),
     ui_sidebar,
     ui_body
 )
