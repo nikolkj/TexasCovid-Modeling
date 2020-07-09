@@ -28,18 +28,18 @@ require(plotly, quietly = TRUE)
 # Define sidebar contents
 ui_sidebar = dashboardSidebar(
     sidebarMenu(
+        menuItem(text = "About", 
+                 tabName = "tab_other_about",
+                 icon = shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "County Data",
                  tabName = "tab_dash_county", 
-                 icon = shiny::icon(name = "th", class = "fa-1x",lib = "font-awesome")),
+                 icon = shiny::icon(name = "th", class = "fa-1x",lib = "font-awesome"), selected = TRUE),
         menuItem(text = "Community Data",
                  tabName = "tab_dash_community", 
                  icon = shiny::icon(name = "th-large", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "State Data",
                  tabName = "tab_dash_state", 
-                 icon = shiny::icon(name = "square", class = "fa-1x",lib = "font-awesome")),
-        menuItem(text = "About", 
-                 tabName = "tab_other_about",
-                 icon = shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome"))
+                 icon = shiny::icon(name = "square", class = "fa-1x",lib = "font-awesome"))
         # menuItem(text = "Supporters", 
         #          tabName = "tab_other_support",
         #          icon = shiny::icon(name = "thumbs-up", class = "fa-1x",lib = "font-awesome"))
@@ -154,7 +154,7 @@ ui_body = dashboardBody(
                                                            htmlOutput("text.county.daily_tests_comp")
                                                            # HTML(paste0("<br>Appx. <b>", state.comps.new_tests, "%</b> of the days were better.</br>"))),
                                                   ),
-                                                  tabPanel("Forecasts", 
+                                                  tabPanel("Trend Forecast", 
                                                            plotly::plotlyOutput(outputId = "plot.county.forecasts_tests_total.line")
                                                            )
                                                   )
@@ -177,7 +177,7 @@ ui_body = dashboardBody(
                                                # HTML(paste0("<br>Appx. <b>", textOutput("text.county.daily_cases_comp"), "%</b> of the days were better.</br>"))
                                                # uiOutput(outputId = "text.county.daily_cases_comp_html")   
                                         ),
-                                           tabPanel("Forecasts",
+                                           tabPanel("Trend Forecast",
                                                     plotly::plotlyOutput(outputId = "plot.county.forecasts_cases_total.line")
                                                     )
                                        )),
@@ -198,7 +198,7 @@ ui_body = dashboardBody(
                                                htmlOutput("text.county.daily_deaths_comp")
                                                # HTML(paste0("<br>Appx. <b>", state.comps.new_deaths, "%</b> of the days were better.</br>"))
                                            ),
-                                           tabPanel("Forecasts", 
+                                           tabPanel("Trend Forecast", 
                                                     plotly::plotlyOutput(outputId = "plot.county.forecasts_deaths_total.line")
                                                     )
                                            
@@ -249,7 +249,15 @@ ui_body = dashboardBody(
                                        ))
                                        ))
                 )), 
-        tabItem(tabName = "tab_other_about", "about")
+        tabItem(tabName = "tab_other_about",
+                fluidPage(
+                    fluidRow(
+                           box(status = "success", includeHTML("about-page.html")),
+                           box(status = "warning", includeHTML("about-page_details.html"))
+                            ),
+                    fluidRow(box(status = "primary", includeHTML("about-page_stack.html")))
+                    )
+                )
         # tabItem(tabName = "tab_other_support", "support")
     )
 )
