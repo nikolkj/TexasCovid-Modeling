@@ -39,10 +39,10 @@ ui_sidebar = dashboardSidebar(
                  icon = shiny::icon(name = "square", class = "fa-1x",lib = "font-awesome")),
         menuItem(text = "About", 
                  tabName = "tab_other_about",
-                 icon = shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome")),
-        menuItem(text = "Supporters", 
-                 tabName = "tab_other_support",
-                 icon = shiny::icon(name = "thumbs-up", class = "fa-1x",lib = "font-awesome"))
+                 icon = shiny::icon(name = "info-circle", class = "fa-1x",lib = "font-awesome"))
+        # menuItem(text = "Supporters", 
+        #          tabName = "tab_other_support",
+        #          icon = shiny::icon(name = "thumbs-up", class = "fa-1x",lib = "font-awesome"))
     )
 )
 
@@ -249,8 +249,8 @@ ui_body = dashboardBody(
                                        ))
                                        ))
                 )), 
-        tabItem(tabName = "tab_other_about", "about"),
-        tabItem(tabName = "tab_other_support", "support")
+        tabItem(tabName = "tab_other_about", "about")
+        # tabItem(tabName = "tab_other_support", "support")
     )
 )
 
