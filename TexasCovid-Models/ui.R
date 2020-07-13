@@ -252,7 +252,7 @@ ui_body = dashboardBody(
         tabItem(tabName = "tab_other_about",
                 fluidPage(
                     fluidRow(
-                           box(status = "success", includeHTML("about-page.html")),
+                           box(status = "success", includeHTML("about-page_summary.html")),
                            box(status = "warning", includeHTML("about-page_details.html"))
                             ),
                     fluidRow(box(status = "primary", includeHTML("about-page_stack.html")))
