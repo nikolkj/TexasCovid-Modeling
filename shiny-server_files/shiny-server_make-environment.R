@@ -8,8 +8,10 @@ require(tidyverse);
 require(magrittr);
 # zoo
 
-# Load Data ----
-# Full Raw Data
+# Load Data: Large Data Tables ----
+# 1) Tests, Cases and Deaths
+# 2) Hospitalizations and Capacity
+
 # Data-set: Tests, Cases and Deaths
 dat = read_csv(
   file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/Texas-County-Main.csv",
@@ -29,30 +31,34 @@ dat = read_csv(
 ) %>% select(-LastUpdateDate) 
 
 # Data-set: Hospitalizations and Capacity
-dat = read_csv(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/Texas-County-TSA.csv",
+hosp = read_csv(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/Texas-County-TSA.csv",
                col_names = TRUE,
                col_types = cols(
                  TSA_ID = readr::col_factor(),
                  TSA_Name = readr::col_factor(),
-                 Date = readr::readr::col_integer(),
+                 Date = readr::col_date(),
                  DailyCount_patients = readr::col_integer(),
                  DailyDelta_patients = readr::col_integer(),
                  DailyCount_beds = readr::col_integer(),
                  DailyDelta_beds = readr::col_integer(),
                  LastUpdateDate = col_date()
-               ),
+               ), trim_ws = TRUE,
                na = "") %>%
   select(-LastUpdateDate)
 
-# Population segmentation data
-pop = readRDS(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/texas-demographics_county-populations_segmented.RDS")
-
+# Load Data: Models ----
 # TS Model Data
 # ... see "mod_all.R"
 mod_county_cases = readRDS("/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/mod_DailyCount-cases.RDS") 
 mod_county_tests = readRDS("/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/mod_DailyCount-tests.RDS") 
 mod_county_deaths = readRDS("/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/mod_DailyCount-deaths.RDS") 
 
+# Load Data: Small Data Tables ----
+# Population segmentation data
+pop = readRDS(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/texas-demographics_county-populations_segmented.RDS")
+tsa_ref = read_csv(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/ref_RCA-TSAID-to-County.csv")
+
+# Load Data: Plot Objects ----
 # Plot Objects
 plot_TexasCommunities.hist = readRDS(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/plot_Texas-Communities_Population-Segmentation.RDS")
 plot_TexasCommunities.map = readRDS(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/plot_Texas-Communities_Population-Segmentation-Map.RDS")
@@ -90,8 +96,11 @@ dat_county = dat %>%
   nest() %>%
   ungroup() 
 
-# TSA Data Processing 
-# ... TBD
+# County-name 
+ref_countynames = unique(dat_county$County)
+
+# Remove Objects ----
+rm(dat)
 
 # Save Image ----
 save.image(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/TexasCovid-Models/shiny-server_environment.Rdata",
