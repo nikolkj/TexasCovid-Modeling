@@ -24,6 +24,7 @@ require(tidyverse)
 # Other ...
 require(plotly, quietly = TRUE)
 
+
 # DEFINE UI ELEMENTS ----
 # Define sidebar contents
 ui_sidebar = dashboardSidebar(
@@ -52,6 +53,10 @@ ui_body = dashboardBody(
     tabItems(
         tabItem(tabName = "tab_dash_state", 
                 fluidPage(
+                tags$style(type="text/css",
+                           ".shiny-output-error { visibility: hidden; }",
+                           ".shiny-output-error:before { visibility: hidden; }"
+                ),
                 fluidRow(shinydashboard::box(title = "About: State Data", status = "success", collapsible = TRUE, collapsed = FALSE,
                                              includeHTML("state_dash-info.html"))),
                 shiny::hr(),
@@ -109,6 +114,10 @@ ui_body = dashboardBody(
         )),
         tabItem(tabName = "tab_dash_community", 
                 fluidPage(
+                    tags$style(type="text/css",
+                               ".shiny-output-error { visibility: hidden; }",
+                               ".shiny-output-error:before { visibility: hidden; }"
+                    ),
                     fluidRow(shinydashboard::box(title = "About: Community Data", status = "success", collapsible = TRUE, collapsed = FALSE,
                                                  includeHTML("community_dash-info.html"))),
                     shiny::hr(),
@@ -136,6 +145,10 @@ ui_body = dashboardBody(
                 ))),
         tabItem(tabName = "tab_dash_county", 
                 fluidPage(
+                    tags$style(type="text/css",
+                               ".shiny-output-error { visibility: hidden; }",
+                               ".shiny-output-error:before { visibility: hidden; }"
+                    ),
                 fluidRow(shinydashboard::box(title = "About: County Data", status = "success", collapsible = TRUE, collapsed = FALSE,
                                              includeHTML("county_dash-info.html"))),
                     shiny::hr(),
@@ -290,4 +303,6 @@ dashboardPage(
     ui_sidebar,
     ui_body
 )
+
+
 
