@@ -68,7 +68,7 @@ shinyServer(function(input, output) {
     # UI Dynamic Objects
     output$select.county_name = renderUI(
         selectInput(inputId = "input_county", label = "Select County:", 
-                    choices = unique(as.character(dat$County)), 
+                    choices = ref_countynames, 
                     multiple = FALSE, selected = "Harris")
     )
     
