@@ -246,6 +246,27 @@ ui_body = dashboardBody(
                                            ),
                                            tabPanel("Definitions",
                                                     shiny::includeHTML(path = "rate-defintions.html"))
+                                       )),
+                                       fluidRow(tabBox(
+                                           title = tagList(
+                                               shiny::icon(name = "procedures", class = "fa-1x", lib = "font-awesome"),
+                                               HTML("<b>Regional Hospital Info</b>")
+                                           ),
+                                           width = 12,
+                                           tabPanel("Patients",
+                                                    plotly::plotlyOutput(outputId = "tsa.daily_hospitalizations.bar"),
+                                                    shiny::htmlOutput(outputId = "tsa_description_out_1")
+                                                    ),
+                                           tabPanel("Beds", 
+                                                    plotly::plotlyOutput(outputId = "tsa.daily_beds.bar"),
+                                                    shiny::htmlOutput(outputId = "tsa_description_out_2"),
+                                                    shiny::HTML(text = "<br><b>Note:</b> TSA data does not differentiate between ICU and general hospital beds.")
+                                                    ),
+                                           tabPanel("Patient Mortality",
+                                                    plotly::plotlyOutput(outputId = "tsa.rate_patientmortality"),
+                                                    shiny::htmlOutput(outputId = "tsa_description_out_3"),
+                                                    shiny::HTML(text = "<br><b>Patient Mortality:</b> 7-day moving average of new daily deaths divided by the prior-day's active patient count.")
+                                                    )
                                        ))
                                        ))
                 )), 

@@ -1156,4 +1156,194 @@ shinyServer(function(input, output) {
         
     })
     
+    # REFERENCE OBJECTS: TSA ----
+    tsa_select = reactive({
+        temp = tsa_ref %>% 
+            filter(TSA_ID == tsa_ref$TSA_ID[which(tsa_ref$County == input$input_county)])
+        return(temp)
+    })
+    
+    # TEXT: TSA ----
+    output$tsa_description_out_1 <- 
+        output$tsa_description_out_2 <- 
+        output$tsa_description_out_3 <- 
+        renderText({
+        n_counties = setdiff(tsa_select()$County, input$input_county)
+        n_counties = paste(n_counties[-length(n_counties)], collapse = ", ") %>%
+            paste(., "and", n_counties[length(n_counties)])
+        
+        paste("<br><b>Trauma Service Area ", unique(tsa_select()$TSA_ID), "</b> aggregates data for ",
+              input$input_county, " and neighboring", n_counties, " counties.")
+        
+         })
+    
+    
+    # output$tsa_description_out_2 = output$tsa_description_out_1
+    # output$tsa_description_out_3 = output$tsa_description_out_1
+    
+    # PLOTS: "tsa.daily_*" ----
+    output$tsa.daily_hospitalizations.bar = renderPlotly({
+        dat_tsa = dat_hosp %>% 
+            filter(TSA_ID == unique(tsa_select()$TSA_ID)) %>%
+            select(TSA_ID, Date, DailyCount_patients) %>%
+            # Calculate moving-average
+            arrange(Date) %>%
+            mutate(ma_patients = zoo::rollmean(x = DailyCount_patients, k = 7, fill = 0, align = "right")) 
+        
+        p = plot_ly() %>%
+            add_trace(
+                data = dat_tsa, 
+                x = ~ Date,
+                y = ~ DailyCount_patients,
+                marker = list(color = plotly_color.cases),
+                opacity = 1,
+                type = "bar",
+                name = "Patients"
+                ) %>%
+            add_trace(
+                p = .,
+                data = dat_tsa,
+                x = ~ Date,
+                y = ~ ma_patients,
+                name = "7-day Avg.",
+                type = 'scatter', 
+                mode = 'lines',
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date_fixed,
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste0("TSA Region ", unique(tsa_select()$TSA_ID), ": Active Hospitalizations")),
+                showlegend = FALSE
+            )
+        
+        p
+            
+        
+    })
+    
+    output$tsa.daily_beds.bar = renderPlotly({
+        dat_tsa = dat_hosp %>% 
+            filter(TSA_ID == unique(tsa_select()$TSA_ID)) %>%
+            select(TSA_ID, Date, DailyCount_beds) %>%
+            # Calculate moving-average
+            arrange(Date) %>%
+            mutate(ma_beds = zoo::rollmean(x = DailyCount_beds, k = 7, fill = 0, align = "right")) 
+        
+        p = plot_ly() %>%
+            add_trace(
+                data = dat_tsa, 
+                x = ~ Date,
+                y = ~ DailyCount_beds,
+                marker = list(color = plotly_color.cases),
+                opacity = 1,
+                type = "bar",
+                name = "Current COVID Patients"
+            ) %>%
+            add_trace(
+                p = .,
+                data = dat_tsa,
+                x = ~ Date,
+                y = ~ ma_beds,
+                name = "7-day Avg.",
+                type = 'scatter', 
+                mode = 'lines',
+                connectgaps = TRUE,
+                line = list(width = 4, color = plotly_color.forecast_point),
+                opacity = 1
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date_fixed,
+                yaxis = list(title = ""),
+                title = plotly_titleformat.plot(plot_title = paste0("TSA Region ", unique(tsa_select()$TSA_ID), ": Available Beds")),
+                showlegend = FALSE
+            )
+        
+        p
+        
+        
+    })
+    
+    # output$tsa.rate_hospitalization = renderPlotly({
+    #     dat_hosp %>%
+    #         filter(TSA_ID == "Q") %>%
+    #         arrange(Date) %>% 
+    #         mutate(new_patients = zoo::rollmean(x = DailyDelta_patients, k = 7, fill = 0, align = "right"),
+    #                new_patients = ifelse(is.na(new_patients), 0, new_patients)) %>%
+    #         select(TSA_ID, Date, new_patients) %>% 
+    #         inner_join(x = (
+    #             dat_county %>% 
+    #                 filter(County %in% tsa_select$County) %>%
+    #                 unnest(cols = c(data)) %>% 
+    #                 select(Date, DailyDelta_cases) %>%
+    #                 group_by(Date) %>% 
+    #                 summarise(DailyDelta_cases = sum(DailyDelta_cases))
+    #                     ),
+    #                   y = .,
+    #             by = "Date") %>% 
+    #         mutate(
+    #             ma_DailyDelta_cases = zoo::rollmean(x = DailyDelta_cases, k = 7, fill = 0, align = "right"),
+    #             hospitalization_rate = new_patients/ma_DailyDelta_cases
+    #             ) %>% 
+    #         select(Date, hospitalization_rate) %>%
+    #         plot_ly(
+    #             data = .,
+    #             x = ~ Date,
+    #             y = ~ hospitalization_rate,
+    #             connectgaps = TRUE,
+    #             line = list(color = plotly_color.cases, width = 5),
+    #             opacity = .95,
+    #             type = 'scatter', mode = 'lines'
+    #         ) %>%
+    #         layout(
+    #             p = .,
+    #             xaxis = plotly_axisformat.date_fixed,
+    #             yaxis = list(title = "", tickformat = ".2%")
+    #             # title = plotly_titleformat.plot(plot_title = paste("Case Detection Rate:", input$input_county, "County"))
+    #         )
+    #     
+    # })
+
+    output$tsa.rate_patientmortality = renderPlotly({
+        dat_hosp %>%
+            filter(TSA_ID == unique(tsa_select()$TSA_ID)) %>%
+            arrange(Date) %>%
+            select(TSA_ID, Date, DailyCount_patients) %>%
+            inner_join(x = (
+                dat_county %>%
+                    filter(County %in% tsa_select()$County) %>%
+                    unnest(cols = c(data)) %>%
+                    select(Date, DailyDelta_deaths) %>%
+                    group_by(Date) %>%
+                    summarise(DailyDelta_deaths = sum(DailyDelta_deaths))
+            ),
+            y = .,
+            by = "Date") %>% ungroup() %>%
+            mutate(DailyCount_patients_lag = lag(x = DailyCount_patients, n = 1),
+                   patient_mortality = DailyDelta_deaths/DailyCount_patients_lag,
+                   patient_mortality = zoo::rollmean(x = patient_mortality, k =7, fill =0, align = "right") # 7-day moving average
+                   ) %>% 
+            select(Date, patient_mortality) %>% 
+            plot_ly(
+                data = .,
+                x = ~ Date,
+                y = ~ patient_mortality,
+                connectgaps = TRUE,
+                line = list(color = plotly_color.deaths, width = 5),
+                opacity = 1,
+                type = 'scatter', mode = 'lines'
+            ) %>%
+            layout(
+                p = .,
+                xaxis = plotly_axisformat.date_fixed,
+                yaxis = list(title = "", tickformat = ".2%"),
+                title = plotly_titleformat.plot(plot_title = paste0("TSA Region ", unique(tsa_select()$TSA_ID), ": Patient Mortality"))
+            )
+
+    })
+    
 })
