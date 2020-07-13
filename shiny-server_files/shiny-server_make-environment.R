@@ -31,7 +31,7 @@ dat = read_csv(
 ) %>% select(-LastUpdateDate) 
 
 # Data-set: Hospitalizations and Capacity
-hosp = read_csv(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/Texas-County-TSA.csv",
+dat_hosp = read_csv(file = "/home/niko/Documents/R-projects/TexasCovid-modeling/shiny-server_files/Texas-County-TSA.csv",
                col_names = TRUE,
                col_types = cols(
                  TSA_ID = readr::col_factor(),
