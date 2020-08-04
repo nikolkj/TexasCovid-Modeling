@@ -80,8 +80,21 @@ for (i in seq(from = 1, to = min(for_short, nrow(dat)), by = 1)) {
   dts = dat$data_ts[[i]] %>% # isolate time series
     subset(x = ., start = (length(.) - (param_traindays + param_testdays - 1)))
   
-  dts = dts %>% 
-    imputeTS::na_locf(x = ., option = "locf", na_remaining = "rev")
+  # Skip all data is "NA", otherwise impute NAs
+  if(all(is.na(dts))){
+    
+    # No models fitted, assign nulls
+    dat$forecast[[i]] = NA
+    dat$models[[i]] = NA
+    dat$opera[[i]] = NA
+    
+    pb$tick()
+    next 
+    
+  }else{
+    dts = dts %>% 
+      imputeTS::na_locf(x = ., option = "locf", na_remaining = "rev")
+  }
   
   # Create seperate testing & training sets
   dts.train = subset(dts, 
